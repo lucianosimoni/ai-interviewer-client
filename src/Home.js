@@ -1,4 +1,4 @@
-export default function App() {
+export default function Home() {
   return (
     <>
       <header className="absolute w-full">
@@ -18,6 +18,7 @@ export default function App() {
                 AI Interviewer
               </span>
             </a>
+
             {/* RIGHT BUTTONS */}
             <div className="flex items-center lg:order-2">
               {/* LOGIN */}
@@ -27,6 +28,7 @@ export default function App() {
               >
                 Log in
               </a>
+
               {/* SIGNUP */}
               <a
                 href="signup"
@@ -34,12 +36,14 @@ export default function App() {
               >
                 Sign up
               </a>
+
+              {/* MOBILE BUTTON */}
               <button
                 data-collapse-toggle="mobile-menu-2"
                 type="button"
                 className="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
                 aria-controls="mobile-menu-2"
-                aria-expanded="false"
+                // aria-expanded="false"
               >
                 <span className="sr-only">Open main menu</span>
                 <svg
@@ -49,9 +53,9 @@ export default function App() {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   ></path>
                 </svg>
                 <svg
@@ -61,14 +65,15 @@ export default function App() {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   ></path>
                 </svg>
               </button>
             </div>
-            {/* BUTTONS */}
+
+            {/* PAGES */}
             <div
               className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1"
               id="mobile-menu-2"
@@ -113,7 +118,7 @@ export default function App() {
         </nav>
       </header>
 
-      <main className="bg-white dark:bg-gray-900 h-screen flex ">
+      <main className="bg-white dark:bg-gray-900 h-screen flex">
         <section className="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
           {/* LEFT SIDE */}
           <div className="mr-auto place-self-center lg:col-span-7">
@@ -141,9 +146,9 @@ export default function App() {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 ></path>
               </svg>
             </a>
