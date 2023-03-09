@@ -36,7 +36,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/dashboard/overview",
-        element: <Overview />,
+        element: <Overview loggedInUser={loggedInUser} />,
       },
       {
         path: "/dashboard/interview",
