@@ -3,7 +3,7 @@ export default function ErrorPopup({ error, setError }) {
     <div
       id="info-popup"
       tabIndex="-1"
-      className="flex place-content-center items-center align-middle bg-gradient-to-t from-gray-900 to-transparent fixed bottom-0 w-full overflow-y-auto overflow-x-hidden md:inset-0 h-modal md:h-full"
+      className="z-50 flex place-content-center items-center align-middle bg-gradient-to-t from-gray-900 to-transparent fixed bottom-0 w-full overflow-y-auto overflow-x-hidden md:inset-0 h-modal md:h-full"
     >
       <div className="relative p-4 w-full max-w-lg h-full md:h-auto">
         <div className="relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 md:p-8">

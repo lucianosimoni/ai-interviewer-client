@@ -18,7 +18,7 @@ export default function SignUp() {
       passwordHash: password.value,
     };
     axios
-      .post("http://localhost:3000/user", body)
+      .post("https://ai-interviewer.onrender.com/user", body)
       .then((res) => {
         if (res.status === 201) {
           // TODO: Go to the dashboard
@@ -30,7 +30,9 @@ export default function SignUp() {
         const errorRes = error.response.data.error;
         if (errorRes.code === 1) {
           setError({ visible: true, message: "E-mail already in use." });
+          return;
         }
+        setError({ visible: true, message: `Error: ${error}` });
         console.error("Something happed, error: ", error);
       });
   };

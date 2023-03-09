@@ -31,7 +31,7 @@ export default function Overview({ loggedInUser }) {
           <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
             <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
               {/* ACTION BUTTON */}
-              <Link to={"/dashboard/interview"}>
+              <Link to={"/dashboard/new-interview"}>
                 <button
                   type="button"
                   className="flex items-center justify-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
@@ -84,7 +84,7 @@ export default function Overview({ loggedInUser }) {
                 {/* LOOP THROUGH THE INTERVIEWS OF THIS USER */}
                 {interviews.map((interview, index) => {
                   return (
-                    <tr id={index} className="border-b dark:border-gray-700">
+                    <tr key={index} className="border-b dark:border-gray-700">
                       <th
                         scope="row"
                         className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"

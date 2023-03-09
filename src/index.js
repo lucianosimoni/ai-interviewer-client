@@ -9,14 +9,16 @@ import SignUp from "./SignUp";
 import TermsAndConditions from "./TermsAndConditions";
 import Login from "./Login";
 import Dashboard from "./Dashboard";
-import Interview from "./dashboard/Interview";
+import NewInterview from "./dashboard/NewInterview";
 import Overview from "./dashboard/Overview";
 import Help from "./dashboard/Help";
+import Interview from "./interview/Interview";
 
 const loggedInUser = {
+  id: 1,
   firstName: "Luciano",
   lastName: "Simoni",
-  email: "lucianoSimoni@gmail.com",
+  email: "lucianosimonipersonal@gmail.com",
 };
 
 const router = createBrowserRouter([
@@ -31,6 +33,10 @@ const router = createBrowserRouter([
     element: <SignUp />,
   },
   {
+    path: "/interview/:id",
+    element: <Interview loggedInUser={loggedInUser} />,
+  },
+  {
     path: "/dashboard/",
     element: <Dashboard loggedInUser={loggedInUser} />,
     children: [
@@ -39,8 +45,8 @@ const router = createBrowserRouter([
         element: <Overview loggedInUser={loggedInUser} />,
       },
       {
-        path: "/dashboard/interview",
-        element: <Interview />,
+        path: "/dashboard/new-interview",
+        element: <NewInterview loggedInUser={loggedInUser} />,
       },
       {
         path: "/dashboard/help",

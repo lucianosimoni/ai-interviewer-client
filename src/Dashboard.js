@@ -50,7 +50,7 @@ export default function Dashboard({ loggedInUser }) {
 
             {/* New interview */}
             <li>
-              <Link to={"/dashboard/interview"}>
+              <Link to={"/dashboard/new-interview"}>
                 <button
                   type="button"
                   className="w-full flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
