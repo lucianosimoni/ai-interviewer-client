@@ -132,7 +132,7 @@ export default function Dashboard({ loggedInUser }) {
         </div>
       </aside>
 
-      <main className="ml-64 h-fit w-full">{outlet || <Intro />}</main>
+      <main className="ml-64 h-full w-full">{outlet || <Intro />}</main>
     </div>
   );
 }
