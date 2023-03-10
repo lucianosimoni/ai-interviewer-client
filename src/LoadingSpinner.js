@@ -1,6 +1,12 @@
-export default function LoadingSpinner() {
+export default function LoadingSpinner({ removeSidebarSpace }) {
   return (
-    <div className="z-50 fixed bg-[#111827a1] h-screen w-screen flex place-items-center justify-center">
+    <div
+      className={
+        removeSidebarSpace
+          ? "z-50 fixed bg-[#111827a1] translate-x-[-256px] w-[calc(100vw-256px)] ml-64 h-screen flex place-items-center justify-center"
+          : "z-50 fixed bg-[#111827a1] w-full h-screen flex place-items-center justify-center"
+      }
+    >
       <div role="status">
         <svg
           aria-hidden="true"
