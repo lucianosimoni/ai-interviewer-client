@@ -11,8 +11,12 @@ SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
 
 export default function Interview({ loggedInUser }) {
   const [bannerVisible, setBannerVisible] = useState(true);
-  const { transcript, listening, browserSupportsSpeechRecognition } =
-    useSpeechRecognition();
+  const {
+    transcript,
+    resetTranscript,
+    listening,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
   const startListening = () => {
     SpeechRecognition.startListening({ continuous: true });
   };
@@ -41,6 +45,12 @@ export default function Interview({ loggedInUser }) {
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>;
   }
+
+  const stopListening = () => {
+    console.log(transcript);
+    resetTranscript();
+    SpeechRecognition.stopListening();
+  };
 
   return (
     <>
@@ -102,9 +112,11 @@ export default function Interview({ loggedInUser }) {
       ) : null}
 
       <main className="h-screen w-full bg-white dark:bg-gray-800">
-        {/* FLEX */}
         <div className="h-full px-14 py-4 text-center overflow-clip">
+          {/* MESSAGES SECTION */}
           <section className="text-white h-3/5">HELLO</section>
+
+          {/* CONTROL SECTION - BOTTOM */}
           <section className="text-white h-2/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end">
             <div className="relative flex flex-col gap-2 justify-center place-items-center h-full w-full">
               {/* Microphone */}
@@ -130,9 +142,9 @@ export default function Interview({ loggedInUser }) {
                   onTouchStart={startListening}
                   onMouseDown={startListening}
                   onKeyDown={startListening}
-                  onKeyUp={SpeechRecognition.stopListening}
-                  onTouchEnd={SpeechRecognition.stopListening}
-                  onMouseUp={SpeechRecognition.stopListening}
+                  onKeyUp={stopListening}
+                  onTouchEnd={stopListening}
+                  onMouseUp={stopListening}
                   autoFocus={true}
                   className="outline-none transition duration-300 ease-in active:duration-75 hover:translate-y-1 active:translate-y-2 text-xl text-center w-96 h-20 bg-gradient-to-t from-slate-800 to-slate-700 border-slate-600 drop-shadow-xl shadow-2xl hover:shadow-md active:shadow-sm hover:drop-shadow-lg active:drop-shadow-sm border-2 border-solid rounded-xl "
                 >

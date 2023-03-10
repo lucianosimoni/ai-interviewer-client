@@ -5,6 +5,7 @@ import ErrorPopup from "../ErrorPopup";
 import LoadingSpinner from "../LoadingSpinner";
 
 export default function Overview({ loggedInUser }) {
+  // FIXME: Background going white if screen has height too small
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ visible: false, message: "" });

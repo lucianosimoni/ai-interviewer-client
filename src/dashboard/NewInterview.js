@@ -2,9 +2,12 @@ import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import ErrorPopup from "../ErrorPopup";
+import LoadingSpinner from "../LoadingSpinner";
 
 export default function NewInterview({ loggedInUser }) {
+  // FIXME: Background going white if screen has height too small
   const [error, setError] = useState({ visible: false, message: "" });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -12,16 +15,21 @@ export default function NewInterview({ loggedInUser }) {
 
     // TODO: Limit max rounds
     const body = {
-      userId: loggedInUser.id,
       maxRound: Number(maxRound.value),
       level: level.value,
     };
 
     // Post new Interview
+    setLoading(true);
     axios
-      .post("http://localhost:3000/user/interview", body)
-      .then((res) => console.log(res))
+      .post(`http://localhost:3000/user/${loggedInUser.id}/interview`, body)
+      .then((response) => {
+        setLoading(false);
+        const interview = response.data.interview;
+        console.log(interview);
+      })
       .catch((error) => {
+        setLoading(false);
         const errorRes = error.response.data.error;
         if (errorRes.code === 2) {
           setError({ visible: true, message: "Bad request, Missing fields." });
@@ -34,6 +42,7 @@ export default function NewInterview({ loggedInUser }) {
 
   return (
     <>
+      {loading ? <LoadingSpinner removeSidebarSpace={true} /> : null}
       {error.visible ? <ErrorPopup error={error} setError={setError} /> : null}
 
       <main className="h-full flex justify-center place-items-center bg-white dark:bg-gray-900 px-4 lg:px-12">
