@@ -38,6 +38,10 @@ export default function Interview({ loggedInUser }) {
     };
   }, [handleSpaceDown, handleSpaceUp]);
 
+  if (!browserSupportsSpeechRecognition) {
+    return <span>Browser doesn't support speech recognition.</span>;
+  }
+
   return (
     <>
       {bannerVisible ? (

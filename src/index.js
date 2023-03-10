@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import Home from "./Home";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import TestScene from "./Test";
 import ErrorPage from "./ErrorPage";
 import SignUp from "./SignUp";
 import TermsAndConditions from "./TermsAndConditions";
@@ -53,10 +52,6 @@ const router = createBrowserRouter([
         element: <Help />,
       },
     ],
-  },
-  {
-    path: "/test",
-    element: <TestScene />,
   },
   {
     path: "/terms-and-conditions",
