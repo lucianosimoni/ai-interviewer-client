@@ -11,6 +11,8 @@ SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
 
 export default function Interview({ loggedInUser }) {
   const [bannerVisible, setBannerVisible] = useState(true);
+  const [userSpeechTurn, setUserSpeechTurn] = useState(true);
+
   const {
     transcript,
     resetTranscript,
@@ -18,6 +20,9 @@ export default function Interview({ loggedInUser }) {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
   const startListening = () => {
+    if (!userSpeechTurn) {
+      return;
+    }
     SpeechRecognition.startListening({ continuous: true });
   };
 
@@ -47,6 +52,7 @@ export default function Interview({ loggedInUser }) {
   }
 
   const stopListening = () => {
+    // TODO: Post new message
     console.log(transcript);
     resetTranscript();
     SpeechRecognition.stopListening();
@@ -117,13 +123,19 @@ export default function Interview({ loggedInUser }) {
           <section className="text-white h-3/5">HELLO</section>
 
           {/* CONTROL SECTION - BOTTOM */}
-          <section className="text-white h-2/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end">
+          <section
+            className={
+              userSpeechTurn
+                ? "text-white h-2/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
+                : "opacity-20 text-white h-2/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
+            }
+          >
             <div className="relative flex flex-col gap-2 justify-center place-items-center h-full w-full">
               {/* Microphone */}
               <div className="absolute top-[-50px]">
                 <svg
                   className={
-                    listening
+                    listening && userSpeechTurn
                       ? "h-20 text-red-300 scale-95 drop-shadow-none transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
                       : "h-20 text-slate-300 drop-shadow-2xl transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
                   }
@@ -139,6 +151,7 @@ export default function Interview({ loggedInUser }) {
               <div className="align-bottom">
                 <button
                   id="record-button"
+                  disabled={userSpeechTurn ? false : true}
                   onTouchStart={startListening}
                   onMouseDown={startListening}
                   onKeyDown={startListening}
