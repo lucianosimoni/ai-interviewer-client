@@ -1,10 +1,12 @@
 import axios from "axios";
 import { useState } from "react";
 import ErrorPopup from "./ErrorPopup";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function SignUp() {
   const [passwordsCorrect, setPasswordsCorrect] = useState(undefined);
   const [error, setError] = useState({ visible: false, message: "" });
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -17,9 +19,11 @@ export default function SignUp() {
       email: email.value,
       passwordHash: password.value,
     };
+    setLoading(true);
     axios
       .post("https://ai-interviewer.onrender.com/user", body)
       .then((res) => {
+        setLoading(false);
         if (res.status === 201) {
           // TODO: Go to the dashboard
           console.log("user created");
@@ -27,6 +31,7 @@ export default function SignUp() {
         console.log(res);
       })
       .catch((error) => {
+        setLoading(false);
         const errorRes = error.response.data.error;
         if (errorRes.code === 1) {
           setError({ visible: true, message: "E-mail already in use." });
@@ -54,6 +59,7 @@ export default function SignUp() {
 
   return (
     <>
+      {loading ? <LoadingSpinner /> : null}
       {error.visible ? <ErrorPopup error={error} setError={setError} /> : null}
 
       <main className="bg-gray-50 dark:bg-gray-900">

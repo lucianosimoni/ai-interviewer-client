@@ -1,10 +1,10 @@
 export default function LoadingSpinner() {
   return (
-    <div className="z-50 fixed bg-slate-900 opacity-50 h-screen w-screen flex place-items-center justify-center">
+    <div className="z-50 fixed bg-[#111827a1] h-screen w-screen flex place-items-center justify-center">
       <div role="status">
         <svg
           aria-hidden="true"
-          className="drop-shadow-md inline w-20 h-20 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+          className="opacity-100 drop-shadow-md inline w-20 h-20 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
