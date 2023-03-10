@@ -15,7 +15,7 @@ export default function Overview({ loggedInUser }) {
       .get(`http://localhost:3000/user/${loggedInUser.id}/interview`)
       .then((response) => {
         setLoading(false);
-        setInterviews(response.data.interviews);
+        sortInterviews(response.data.interviews);
       })
       .catch((error) => {
         console.error(error);
@@ -26,6 +26,13 @@ export default function Overview({ loggedInUser }) {
         });
       });
   }, []);
+
+  const sortInterviews = (interviews) => {
+    const sortedInterviews = [...interviews].sort((a, b) => {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    setInterviews(sortedInterviews);
+  };
 
   return (
     <>
@@ -104,7 +111,9 @@ export default function Overview({ loggedInUser }) {
                           {interview.good ? "True" : "False"}
                         </td>
                         <td className="px-4 py-3">{interview.maxRound}</td>
-                        <td className="px-4 py-3">{interview.date}</td>
+                        <td className="px-4 py-3">
+                          {new Date(interview.createdAt).toLocaleDateString()}
+                        </td>
                       </tr>
                     );
                   })}

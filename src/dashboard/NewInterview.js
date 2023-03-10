@@ -36,7 +36,7 @@ export default function NewInterview({ loggedInUser }) {
     <>
       {error.visible ? <ErrorPopup error={error} setError={setError} /> : null}
 
-      <main className="h-full flex justify-center place-items-center bg-white dark:bg-gray-900 mx-auto max-w-screen-xl px-4 lg:px-12">
+      <main className="h-full flex justify-center place-items-center bg-white dark:bg-gray-900 px-4 lg:px-12">
         <div className="text-gray-900 dark:text-white">
           <div className="overflow-y-auto overflow-x-hidden justify-center items-center w-full md:inset-0 h-modal md:h-full">
             <div className="relative p-4 w-full max-w-2xl h-full md:h-auto">
