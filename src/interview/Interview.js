@@ -1,21 +1,28 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { createSpeechlySpeechRecognition } from "@speechly/speech-recognition-polyfill";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
+import axios from "axios";
+import LoadingSpinner from "../LoadingSpinner";
+import ErrorPopup from "../ErrorPopup";
 
 const appId = "d7b96257-772b-4a2d-acb0-cbe9c7e3a453";
 const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
 SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
 
 export default function Interview({ loggedInUser }) {
+  const { interviewId } = useParams();
   const [bannerVisible, setBannerVisible] = useState(true);
   const [userSpeechTurn, setUserSpeechTurn] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({ visible: false, message: "" });
 
   const {
     transcript,
     resetTranscript,
+    isMicrophoneAvailable,
     listening,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
@@ -51,15 +58,57 @@ export default function Interview({ loggedInUser }) {
     return <span>Browser doesn't support speech recognition.</span>;
   }
 
+  if (!isMicrophoneAvailable) {
+    console.log("HELLO");
+    setError({ visible: true, message: "Microphone has not been activated!" });
+  }
+
   const stopListening = () => {
-    // TODO: Post new message
-    console.log(transcript);
-    resetTranscript();
     SpeechRecognition.stopListening();
+    const message = transcript;
+    resetTranscript();
+    console.log("🟢🗣️ Message is: ", message);
+
+    if (message.trim() === "") {
+      console.log("⚠️ Empty message. Continuing");
+      return;
+    }
+
+    const data = {
+      message: message,
+      author: loggedInUser.firstName,
+    };
+
+    setLoading(true);
+    axios
+      .post(
+        `http://localhost:3000/user/${loggedInUser.id}/interview/${interviewId}/message`,
+        data
+      )
+      .then((response) => {
+        console.log(response);
+        setLoading(false);
+
+        // Message saved in the Database, call AI now
+        getInterviewerSpeech();
+      })
+      .catch((error) => {
+        setLoading(false);
+        setError({ visible: true, message: `Error: ${error}` });
+        console.error("Something happed, error: ", error);
+      });
+
+    setUserSpeechTurn(false);
+  };
+
+  const getInterviewerSpeech = () => {
+    console.log("🧠 INTERVIEWER SPEECH");
   };
 
   return (
     <>
+      {loading ? <LoadingSpinner /> : null}
+      {error.visible ? <ErrorPopup error={error} setError={setError} /> : null}
       {bannerVisible ? (
         <div
           id="marketing-banner"
