@@ -19,6 +19,8 @@ export default function Interview({ loggedInUser }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ visible: false, message: "" });
 
+  const [messages, setMessages] = useState([]);
+
   const {
     transcript,
     resetTranscript,
@@ -64,45 +66,168 @@ export default function Interview({ loggedInUser }) {
   }
 
   const stopListening = () => {
-    SpeechRecognition.stopListening();
+    // SpeechRecognition.stopListening();
+    SpeechRecognition.abortListening();
     const message = transcript;
     resetTranscript();
-    console.log("🟢🗣️ Message is: ", message);
+    console.log("🗣️ Message is: ", message);
 
     if (message.trim() === "") {
       console.log("⚠️ Empty message. Continuing");
       return;
     }
 
+    saveUserMessage(message);
+  };
+
+  const saveUserMessage = async (message) => {
+    console.log("🗣️ Saving user message in Database");
     const data = {
       message: message,
       author: loggedInUser.firstName,
     };
+    console.log("🗣️ Data is: ", data);
 
     setLoading(true);
-    axios
+    await axios
       .post(
         `http://localhost:3000/user/${loggedInUser.id}/interview/${interviewId}/message`,
         data
       )
       .then((response) => {
-        console.log(response);
         setLoading(false);
+        setUserSpeechTurn(false);
+        console.log("🗣️ response from SaveUserMessage:", response);
+        // if (messages.length === 0) {
+        //   setMessages([response.data.message]);
+        //   console.log("🗣️🟢 Saved to database and State - First key");
+        //   getInterviewerSpeech(response.data.message);
+        //   return;
+        // }
+        setMessages((prevMessages) => [...prevMessages, response.data.message]);
+        // setMessages([...messages, response.data.message]);
+        console.log("🗣️🟢 Saved to database and State");
 
-        // Message saved in the Database, call AI now
-        getInterviewerSpeech();
+        getInterviewerSpeech(response.data.message);
       })
       .catch((error) => {
         setLoading(false);
+        setUserSpeechTurn(true);
         setError({ visible: true, message: `Error: ${error}` });
         console.error("Something happed, error: ", error);
       });
-
-    setUserSpeechTurn(false);
   };
 
-  const getInterviewerSpeech = () => {
+  const getInterviewerSpeech = async (message) => {
     console.log("🧠 INTERVIEWER SPEECH");
+    const fullMessage = buildOpenAiMessage(message);
+    const data = {
+      message: fullMessage,
+    };
+
+    console.log("🧠 POSTING TO AI, DATA: ", data);
+    setLoading(true);
+    axios
+      .post("http://localhost:3000/openai", data)
+      .then((response) => {
+        console.log("⚠️⚠️🧠 AI RESPONSE IS: ", response);
+        setLoading(false);
+        saveInterviewerMessage(response.data.result);
+      })
+      .catch((error) => {
+        setLoading(false);
+        setUserSpeechTurn(true);
+        setError({ visible: true, message: `Error: ${error}` });
+        console.error("Something happed, error: ", error);
+      });
+  };
+
+  const buildOpenAiMessage = (message) => {
+    // ASYNC REMOVED DUE TO STATE BEING USED
+    // const pastMessages = await axios
+    //   .get(
+    //     `http://localhost:3000/user/${loggedInUser.id}/interview/${interviewId}/message`
+    //   )
+    //   .then((response) => {
+    //     setLoading(false);
+
+    //     return response.data.messages;
+    //   })
+    //   .catch((error) => {
+    //     setLoading(false);
+    //     setUserSpeechTurn(true);
+    //     setError({ visible: true, message: `Error: ${error}` });
+    //     console.error("Something happed, error: ", error);
+    //   });
+    if (!messages.includes(message)) {
+      // ADD lastMessage
+      const lastMessage = `${message.message}`;
+      const fullMessage = `${messages.map((m) => {
+        if (m.author !== loggedInUser.firstName) {
+          // AI
+          return String(m.message + "\n");
+        } else {
+          //USER
+          return String(m.message + "->");
+        }
+      })}${lastMessage}->`;
+
+      console.log(
+        "📦📦📦 FULL MESSAGE INCLUDING LAST MESSAGE MANUAL IS:",
+        fullMessage
+      );
+      return fullMessage;
+    }
+
+    const fullMessage = `${messages.map((m) => {
+      if (m.author !== loggedInUser.firstName) {
+        // AI
+        return `<${m.author}>${m.message}\n`;
+      } else {
+        //USER
+        return `<${m.author}>${m.message}->`;
+      }
+    })}`;
+
+    console.log("📦📦📦 FULL MESSAGE WITH FIRST IN STATE IS:", fullMessage);
+    return fullMessage;
+  };
+
+  const saveInterviewerMessage = async (message) => {
+    console.log("- 📦 Saving interviewer message");
+    const data = {
+      message: message,
+      author: "interviewer",
+    };
+
+    setLoading(true);
+    await axios
+      .post(
+        `http://localhost:3000/user/${loggedInUser.id}/interview/${interviewId}/message`,
+        data
+      )
+      .then((response) => {
+        setLoading(false);
+        setUserSpeechTurn(true);
+        setMessages((prevMessages) => [...prevMessages, response.data.message]);
+        readInterviewerMessage(response.data.message);
+        console.log("- 📦 Message saved 🟢");
+        console.log("🙂 - transcript, ", transcript);
+      })
+      .catch((error) => {
+        setLoading(false);
+        setUserSpeechTurn(true);
+        console.log("- 📦 NOT SAVED 🔴");
+        setError({ visible: true, message: `Error: ${error}` });
+        console.error("Something happed, error: ", error);
+      });
+  };
+
+  const readInterviewerMessage = (message) => {
+    var msg = new SpeechSynthesisUtterance();
+    msg.text = message.message;
+    msg.rate = 1.5;
+    window.speechSynthesis.speak(msg);
   };
 
   return (
@@ -169,14 +294,32 @@ export default function Interview({ loggedInUser }) {
       <main className="h-screen w-full bg-white dark:bg-gray-800">
         <div className="h-full px-14 py-4 text-center overflow-clip">
           {/* MESSAGES SECTION */}
-          <section className="text-white h-3/5">HELLO</section>
+          <section className="text-white h-3/5 overflow-y-auto pb-8">
+            <div className="flex flex-col gap-2">
+              {messages.map((message, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col text-left border border-slate-500 p-9 rounded-2xl"
+                  >
+                    <span className="text-blue-400 text-2xl mr-4">
+                      {message.author}
+                    </span>
+                    <span className="text-white text-2xl">
+                      {message.message}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
           {/* CONTROL SECTION - BOTTOM */}
           <section
             className={
               userSpeechTurn
-                ? "text-white h-2/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
-                : "opacity-20 text-white h-2/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
+                ? "text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
+                : "opacity-20 text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
             }
           >
             <div className="relative flex flex-col gap-2 justify-center place-items-center h-full w-full">
@@ -216,6 +359,28 @@ export default function Interview({ loggedInUser }) {
                 </button>
               </div>
             </div>
+            {/* X CLOSE */}
+            <Link to={"/dashboard"}>
+              <button
+                type="button"
+                onClick={() => setError({ visible: false, message: "" })}
+                className="absolute transition ease-linear top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-full text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+              >
+                <svg
+                  className="w-20 h-20 rounded-full"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+                <span className="sr-only">Close modal</span>
+              </button>
+            </Link>
           </section>
         </div>
       </main>

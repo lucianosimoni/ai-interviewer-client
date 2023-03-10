@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ErrorPopup from "../ErrorPopup";
 import LoadingSpinner from "../LoadingSpinner";
 
@@ -8,8 +8,9 @@ export default function NewInterview({ loggedInUser }) {
   // FIXME: Background going white if screen has height too small
   const [error, setError] = useState({ visible: false, message: "" });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const [maxRound, level] = event.target;
 
@@ -21,12 +22,12 @@ export default function NewInterview({ loggedInUser }) {
 
     // Post new Interview
     setLoading(true);
-    axios
+    await axios
       .post(`http://localhost:3000/user/${loggedInUser.id}/interview`, body)
       .then((response) => {
         setLoading(false);
         const interview = response.data.interview;
-        console.log(interview);
+        navigate(`/interview/${interview.id}`);
       })
       .catch((error) => {
         setLoading(false);
