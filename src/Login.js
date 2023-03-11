@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -19,7 +21,7 @@ export default function Login() {
                 href="/"
                 className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
               >
-                <img className="w-8 h-8 mr-2" src="./logo192.png" alt="logo" />
+                <img className="w-8 h-8 mr-2" src="/logo192.png" alt="" />
                 AI Interviewer
               </a>
 
@@ -126,14 +128,14 @@ export default function Login() {
               <p className="mt-4 text-center text-white">
                 Login not working yet
               </p>
-              <a href="/dashboard">
+              <Link to={"/dashboard/"}>
                 <button
                   type="button"
                   className="mt-2 w-fit text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
                   Dashboard
                 </button>
-              </a>
+              </Link>
             </div>
           </section>
         </div>

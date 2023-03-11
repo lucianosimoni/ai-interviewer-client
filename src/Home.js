@@ -9,7 +9,7 @@ export default function Home() {
             {/* LOGO */}
             <a href="/" className="flex items-center">
               <img
-                src="./logo192.png"
+                src="/logo192.png"
                 className="mr-3 h-6 sm:h-9"
                 alt="AI Interviewer Logo"
               />

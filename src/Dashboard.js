@@ -10,11 +10,7 @@ export default function Dashboard({ loggedInUser }) {
         <div className="py-5 px-3 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <Link to={"/dashboard/"}>
             <button type="button" className="flex place-content-center">
-              <img
-                src="./logo192.png"
-                className="mr-3 h-6 sm:h-9"
-                alt="AI Interviewer Logo"
-              />
+              <img src="/logo192.png" className="mr-3 h-6 sm:h-9" alt="" />
               <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
                 AI Interviewer
               </span>

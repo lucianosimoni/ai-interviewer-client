@@ -247,11 +247,7 @@ export default function Interview({ loggedInUser }) {
                 type="button"
                 className="flex items-center mb-2 border-gray-200 md:pr-4 md:mr-4 md:border-r md:mb-0 dark:border-gray-600"
               >
-                <img
-                  src="logo192.png"
-                  className="h-6 mr-2"
-                  alt="AI Interviewer logo"
-                />
+                <img src="logo192.png" className="h-6 mr-2" alt="" />
                 <span className="self-center text-lg font-semibold whitespace-nowrap dark:text-white">
                   AI Interview
                 </span>

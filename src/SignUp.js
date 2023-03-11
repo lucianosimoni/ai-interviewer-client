@@ -21,7 +21,7 @@ export default function SignUp() {
     };
     setLoading(true);
     axios
-      .post("https://ai-interviewer.onrender.com/user", body)
+      .post("http://localhost:3000/user", body)
       .then((res) => {
         setLoading(false);
         if (res.status === 201) {
