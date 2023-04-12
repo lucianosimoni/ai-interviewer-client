@@ -3,9 +3,9 @@ export default function ErrorPopup({ error, setError }) {
   return (
     <div
       id="info-popup"
-      className="fixed z-50 flex place-content-center items-center bg-gradient-to-t from-gray-900 to-transparent w-full md:inset-0 h-modal md:h-full"
+      className="fixed z-50 flex place-content-center items-center bg-gradient-to-t from-gray-900 to-transparent w-full inset-0 h-modal h-full"
     >
-      <div className="relative p-4 w-full max-w-lg h-full md:h-auto">
+      <div className="relative p-4 w-full max-w-lg h-auto">
         <div className="relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 md:p-8">
           {/* MESSAGES */}
           <div className="mb-4 text-sm font-light text-gray-500 dark:text-gray-400">

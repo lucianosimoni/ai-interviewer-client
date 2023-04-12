@@ -2,43 +2,59 @@ import axios from "axios";
 import { useState } from "react";
 import ErrorPopup from "./ErrorPopup";
 import LoadingSpinner from "./LoadingSpinner";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const [passwordsCorrect, setPasswordsCorrect] = useState(undefined);
   const [error, setError] = useState({ visible: false, message: "" });
   const [loading, setLoading] = useState(false);
+  const navigateTo = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const [firstName, lastName, email, password] = event.target;
 
+    setLoading(true);
     // TODO: Hash password
     const body = {
       firstName: firstName.value,
       lastName: lastName.value,
       email: email.value,
-      passwordHash: password.value,
+      password: password.value,
     };
-    setLoading(true);
+
+    const url = window.location.href;
+    const apiUrl = url.includes("ai-interviewer")
+      ? "https://ai-interviewer.onrender.com"
+      : "http://192.168.1.251:3000";
+
     axios
-      .post("http://localhost:3000/user", body)
+      .post(apiUrl + "/user/register", body)
       .then((res) => {
         setLoading(false);
-        if (res.status === 201) {
-          // TODO: Go to the dashboard
-          console.log("user created");
+        if (res.status !== 201) {
+          console.error(res);
+          localStorage.removeItem("loggedInUser");
+          return setError({
+            visible: true,
+            message:
+              "An error occured while trying to Register. Try again or get in touch with Luciano.",
+          });
         }
-        console.log(res);
+        localStorage.setItem(
+          "loggedInUser",
+          JSON.stringify(res.data.createdUser)
+        );
+        console.dir(JSON.parse(localStorage.getItem("loggedInUser")));
+        navigateTo("/dashboard");
       })
       .catch((error) => {
         setLoading(false);
         const errorRes = error.response.data.error;
-        if (errorRes.code === 1) {
-          setError({ visible: true, message: "E-mail already in use." });
-          return;
-        }
-        setError({ visible: true, message: `Error: ${error}` });
-        console.error("Something happed, error: ", error);
+        return setError({
+          visible: true,
+          message: errorRes.message ? errorRes.message : error,
+        });
       });
   };
 
@@ -48,9 +64,8 @@ export default function SignUp() {
 
     if (password.value !== confirmPassword.value) {
       setPasswordsCorrect(false);
-      confirmPassword.className =
-        "bg-gray-50 border border-red-600 text-gray-900 sm:text-sm rounded-lg focus:ring-red-600 outline-none focus:border-red-600 block w-full p-2.5 dark:bg-gray-700 dark:border-red-600 dark:placeholder-red-400 dark:text-red-400 dark:focus:ring-red-500 dark:focus:border-red-500";
-      return;
+      return (confirmPassword.className =
+        "bg-gray-50 border border-red-600 text-gray-900 sm:text-sm rounded-lg focus:ring-red-600 outline-none focus:border-red-600 block w-full p-2.5 dark:bg-gray-700 dark:border-red-600 dark:placeholder-red-400 dark:text-red-400 dark:focus:ring-red-500 dark:focus:border-red-500");
     }
     confirmPassword.className =
       "bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 outline-none focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500";
@@ -63,14 +78,16 @@ export default function SignUp() {
       {error.visible ? <ErrorPopup error={error} setError={setError} /> : null}
 
       <main className="bg-gray-50 dark:bg-gray-900">
-        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-          <a
-            href="/"
+        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto h-screen lg:py-0">
+          {/* LOGO */}
+          <Link
+            to={"/"}
             className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
           >
             <img className="w-8 h-8 mr-2" src="logo192.png" alt="logo" />
             AI Interviewer
-          </a>
+          </Link>
+
           <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
               <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
@@ -186,12 +203,12 @@ export default function SignUp() {
                       className="font-light text-gray-500 dark:text-gray-300"
                     >
                       I accept the{" "}
-                      <a
+                      <Link
+                        to={"/terms-and-conditions"}
                         className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                        href="/terms-and-conditions"
                       >
                         Terms and Conditions
-                      </a>
+                      </Link>
                     </label>
                   </div>
                 </div>
@@ -207,12 +224,12 @@ export default function SignUp() {
                 {/* LOGIN */}
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                   Already have an account?{" "}
-                  <a
-                    href="/login"
+                  <Link
+                    to={"/login"}
                     className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                   >
                     Login here
-                  </a>
+                  </Link>
                 </p>
               </form>
             </div>
