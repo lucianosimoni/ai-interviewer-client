@@ -75,8 +75,8 @@ export default function SignUp() {
       {loading ? <LoadingSpinner /> : null}
       {error.visible ? <ErrorPopup error={error} setError={setError} /> : null}
 
-      <main className="bg-gray-50 dark:bg-gray-900">
-        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto h-screen lg:py-0">
+      <main className="bg-gray-50 dark:bg-gray-900 h-screen overflow-y-auto">
+        <div className="flex flex-col items-center md:justify-center px-6 py-8 mx-auto h-full lg:py-0">
           {/* LOGO */}
           <Link
             to={"/"}

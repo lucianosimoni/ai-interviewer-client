@@ -5,7 +5,6 @@ export default function MockUser() {
   const navigateTo = useNavigate();
 
   const loginAsMockUser = () => {
-    console.log("LOGGING IN AS MOCK");
     const body = {
       email: "test@email.com",
       password: "test",
