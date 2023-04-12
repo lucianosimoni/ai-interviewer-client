@@ -12,6 +12,7 @@ import NewInterview from "./dashboard/NewInterview";
 import Overview from "./dashboard/Overview";
 import Help from "./dashboard/Help";
 import Interview from "./interview/Interview";
+import MockUser from "./MockUser";
 
 const loggedInUser = {
   id: 1,
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
   {
     path: "/terms-and-conditions",
     element: <TermsAndConditions />,
+  },
+  {
+    path: "/mock-user",
+    element: <MockUser />,
   },
 ]);
 

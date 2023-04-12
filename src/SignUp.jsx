@@ -15,7 +15,6 @@ export default function SignUp() {
     const [firstName, lastName, email, password] = event.target;
 
     setLoading(true);
-    // TODO: Hash password
     const body = {
       firstName: firstName.value,
       lastName: lastName.value,
@@ -45,7 +44,6 @@ export default function SignUp() {
           "loggedInUser",
           JSON.stringify(res.data.createdUser)
         );
-        console.dir(JSON.parse(localStorage.getItem("loggedInUser")));
         navigateTo("/dashboard");
       })
       .catch((error) => {
@@ -234,6 +232,14 @@ export default function SignUp() {
               </form>
             </div>
           </div>
+
+          {/* MOCK USER LOGIN */}
+          <Link
+            to={"/mock-user"}
+            className="m-6 w-fit text-white bg-yellow-600 hover:bg-yellow-700 disabled:hover:bg-yellow-600 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+          >
+            Login with Mock User
+          </Link>
         </div>
       </main>
     </>
