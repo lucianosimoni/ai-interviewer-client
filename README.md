@@ -2,9 +2,11 @@
 
 Hosted using [render](https://render.com/).
 
-Live endpoint:
+Live Client endpoint:
 
 https://ai-interviewer-gh3q.onrender.com/
+
+Server-side [here](https://github.com/lucianosimoni/ai-interviewer-server)
 
 🧙‍♂️
 
