@@ -10,7 +10,7 @@ export default function LoadingSpinner() {
   }, []);
 
   return (
-    <div className="z-50 fixed bg-[#111827a1] w-full lg:w-[calc(100%-254px)] h-screen flex place-items-center justify-center">
+    <div className="z-[51] left-0 top-0 fixed bg-[#111827a1] w-full h-screen flex place-items-center justify-center">
       <div role="status" className="flex flex-col items-center">
         <svg
           aria-hidden="true"

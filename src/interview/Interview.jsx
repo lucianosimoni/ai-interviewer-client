@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { createSpeechlySpeechRecognition } from "@speechly/speech-recognition-polyfill";
 import SpeechRecognition, {
@@ -7,12 +7,14 @@ import SpeechRecognition, {
 import axios from "axios";
 import LoadingSpinner from "../LoadingSpinner";
 import ErrorPopup from "../ErrorPopup";
+import { LoggedInUserContext } from "../LoggedInUserContext";
 
 const appId = "d7b96257-772b-4a2d-acb0-cbe9c7e3a453";
 const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
 SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
 
-export default function Interview({ loggedInUser }) {
+export default function Interview() {
+  const { loggedInUser } = useContext(LoggedInUserContext);
   const { interviewId } = useParams();
   const [bannerVisible, setBannerVisible] = useState(true);
   const [userSpeechTurn, setUserSpeechTurn] = useState(true);
@@ -20,6 +22,19 @@ export default function Interview({ loggedInUser }) {
   const [error, setError] = useState({ visible: false, message: "" });
 
   const [messages, setMessages] = useState([]);
+
+  // const body = {
+  //   userId: loggedInUser.id,
+  //   maxRound: 2,
+  //   level: 2,
+  // };
+  // const url = window.location.href;
+  // const apiUrl = url.includes("ai-interviewer")
+  //   ? "https://ai-interviewer.onrender.com"
+  //   : "http://192.168.1.251:3000";
+  // const axiosConfig = {
+  //   headers: { Authorization: `Bearer ${loggedInUser.token}` },
+  // };
 
   const {
     transcript,
@@ -57,11 +72,33 @@ export default function Interview({ loggedInUser }) {
   }, [handleSpaceDown, handleSpaceUp]);
 
   if (!browserSupportsSpeechRecognition) {
-    return <span>Browser doesn't support speech recognition.</span>;
+    return (
+      <main className="flex flex-col justify-center items-center text-center gap-2 h-screen px-8 w-full text-2xl text-gray-900 dark:text-white bg-white dark:bg-gray-800">
+        <span>Your browser does not support Speech Recognition.</span>
+        <span>😓</span>
+        <Link
+          to={"/dashboard"}
+          className="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
+        >
+          Dashboard
+          <svg
+            className="w-5 h-5 ml-2 -mr-1"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </Link>
+      </main>
+    );
   }
 
   if (!isMicrophoneAvailable) {
-    console.log("HELLO");
     setError({ visible: true, message: "Microphone has not been activated!" });
   }
 
@@ -81,54 +118,69 @@ export default function Interview({ loggedInUser }) {
   };
 
   const saveUserMessage = async (message) => {
-    console.log("🗣️ Saving user message in Database");
-    const data = {
-      message: message,
-      author: loggedInUser.firstName,
-    };
-    console.log("🗣️ Data is: ", data);
-
     setLoading(true);
+    console.log("🗣️ Saving user message in Database");
+
+    const body = {
+      interviewId: Number(interviewId),
+      userId: loggedInUser.id,
+      message: message,
+      author: loggedInUser.Profile.firstName,
+    };
+    const url = window.location.href;
+    const apiUrl = url.includes("ai-interviewer")
+      ? "https://ai-interviewer.onrender.com"
+      : "http://192.168.1.251:3000";
+    const axiosConfig = {
+      headers: { Authorization: `Bearer ${loggedInUser.token}` },
+    };
+    console.log("Request body is: ", body);
+
     await axios
-      .post(
-        `http://localhost:3000/user/${loggedInUser.id}/interview/${interviewId}/message`,
-        data
-      )
-      .then((response) => {
+      .post(`${apiUrl}/interview-message`, body, axiosConfig)
+      .then((res) => {
         setLoading(false);
         setUserSpeechTurn(false);
-        console.log("🗣️ response from SaveUserMessage:", response);
-        // if (messages.length === 0) {
-        //   setMessages([response.data.message]);
-        //   console.log("🗣️🟢 Saved to database and State - First key");
-        //   getInterviewerSpeech(response.data.message);
-        //   return;
-        // }
-        setMessages((prevMessages) => [...prevMessages, response.data.message]);
-        // setMessages([...messages, response.data.message]);
+        console.log("🗣️ res from SaveUserMessage:", res);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          res.data.createdMessage,
+        ]);
         console.log("🗣️🟢 Saved to database and State");
 
-        getInterviewerSpeech(response.data.message);
+        getInterviewerSpeech(res.data.createdMessage);
       })
       .catch((error) => {
+        console.error(error);
         setLoading(false);
         setUserSpeechTurn(true);
-        setError({ visible: true, message: `Error: ${error}` });
-        console.error("Something happed, error: ", error);
+        setError({
+          visible: true,
+          message: error.message
+            ? error.message
+            : "Something happened while saving the message.",
+        });
       });
   };
 
   const getInterviewerSpeech = async (message) => {
+    setLoading(true);
     console.log("🧠 INTERVIEWER SPEECH");
     const fullMessage = buildOpenAiMessage(message);
-    const data = {
+    const body = {
       message: fullMessage,
     };
+    const url = window.location.href;
+    const apiUrl = url.includes("ai-interviewer")
+      ? "https://ai-interviewer.onrender.com"
+      : "http://192.168.1.251:3000";
+    const axiosConfig = {
+      headers: { Authorization: `Bearer ${loggedInUser.token}` },
+    };
 
-    console.log("🧠 POSTING TO AI, DATA: ", data);
-    setLoading(true);
+    console.log("🧠 POSTING TO AI, DATA: ", body);
     axios
-      .post("http://localhost:3000/openai", data)
+      .post(`${apiUrl}/openai`, body, axiosConfig)
       .then((response) => {
         console.log("⚠️⚠️🧠 AI RESPONSE IS: ", response);
         setLoading(false);
@@ -143,22 +195,6 @@ export default function Interview({ loggedInUser }) {
   };
 
   const buildOpenAiMessage = (message) => {
-    // ASYNC REMOVED DUE TO STATE BEING USED
-    // const pastMessages = await axios
-    //   .get(
-    //     `http://localhost:3000/user/${loggedInUser.id}/interview/${interviewId}/message`
-    //   )
-    //   .then((response) => {
-    //     setLoading(false);
-
-    //     return response.data.messages;
-    //   })
-    //   .catch((error) => {
-    //     setLoading(false);
-    //     setUserSpeechTurn(true);
-    //     setError({ visible: true, message: `Error: ${error}` });
-    //     console.error("Something happed, error: ", error);
-    //   });
     if (!messages.includes(message)) {
       // ADD lastMessage
       const lastMessage = `${message.message}`;
@@ -194,23 +230,32 @@ export default function Interview({ loggedInUser }) {
   };
 
   const saveInterviewerMessage = async (message) => {
-    console.log("- 📦 Saving interviewer message");
-    const data = {
-      message: message,
-      author: "interviewer",
-    };
-
     setLoading(true);
+    console.log("- 📦 Saving interviewer message");
+    const body = {
+      interviewId: Number(interviewId),
+      userId: loggedInUser.id,
+      message: message,
+      author: "Interviewer",
+    };
+    const url = window.location.href;
+    const apiUrl = url.includes("ai-interviewer")
+      ? "https://ai-interviewer.onrender.com"
+      : "http://192.168.1.251:3000";
+    const axiosConfig = {
+      headers: { Authorization: `Bearer ${loggedInUser.token}` },
+    };
+    console.log("Request body is: ", body);
     await axios
-      .post(
-        `http://localhost:3000/user/${loggedInUser.id}/interview/${interviewId}/message`,
-        data
-      )
-      .then((response) => {
+      .post(`${apiUrl}/interview-message`, body, axiosConfig)
+      .then((res) => {
         setLoading(false);
         setUserSpeechTurn(true);
-        setMessages((prevMessages) => [...prevMessages, response.data.message]);
-        readInterviewerMessage(response.data.message);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          res.data.createdMessage,
+        ]);
+        readInterviewerMessage(res.data.createdMessage);
         console.log("- 📦 Message saved 🟢");
         console.log("🙂 - transcript, ", transcript);
       })
