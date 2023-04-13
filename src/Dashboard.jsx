@@ -2,7 +2,7 @@ import { Link, useOutlet } from "react-router-dom";
 import Intro from "./dashboard/Intro";
 import { useState } from "react";
 
-export default function Dashboard({ loggedInUser }) {
+export default function Dashboard() {
   const [navCollapsed, setNavCollapsed] = useState(true);
   const outlet = useOutlet();
 

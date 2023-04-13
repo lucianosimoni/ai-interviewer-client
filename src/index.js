@@ -15,13 +15,6 @@ import Interview from "./interview/Interview";
 import MockUser from "./MockUser";
 import { LoggedInUserContext } from "./LoggedInUserContext";
 
-const loggedInUser = {
-  id: 1,
-  firstName: "Luciano",
-  lastName: "Simoni",
-  email: "lucianosimonipersonal@gmail.com",
-};
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -35,19 +28,19 @@ const router = createBrowserRouter([
   },
   {
     path: "/interview/:interviewId",
-    element: <Interview loggedInUser={loggedInUser} />,
+    element: <Interview />,
   },
   {
     path: "/dashboard/",
-    element: <Dashboard loggedInUser={loggedInUser} />,
+    element: <Dashboard />,
     children: [
       {
         path: "/dashboard/overview",
-        element: <Overview loggedInUser={loggedInUser} />,
+        element: <Overview />,
       },
       {
         path: "/dashboard/new-interview",
-        element: <NewInterview loggedInUser={loggedInUser} />,
+        element: <NewInterview />,
       },
       {
         path: "/dashboard/help",

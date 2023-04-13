@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function LoadingSpinner({ removeSidebarSpace }) {
+export default function LoadingSpinner() {
   const [showWaitingMessage, setShowWaitingMessage] = useState(false);
 
   useEffect(() => {
@@ -10,13 +10,7 @@ export default function LoadingSpinner({ removeSidebarSpace }) {
   }, []);
 
   return (
-    <div
-      className={
-        removeSidebarSpace
-          ? "z-50 fixed bg-[#111827a1] translate-x-[-256px] w-[calc(100vw-256px)] ml-64 h-screen flex place-items-center justify-center"
-          : "z-50 fixed bg-[#111827a1] w-full h-screen flex place-items-center justify-center"
-      }
-    >
+    <div className="z-50 fixed bg-[#111827a1] w-full lg:w-[calc(100%-254px)] h-screen flex place-items-center justify-center">
       <div role="status" className="flex flex-col items-center">
         <svg
           aria-hidden="true"
@@ -38,8 +32,8 @@ export default function LoadingSpinner({ removeSidebarSpace }) {
         <span
           className={
             showWaitingMessage
-              ? "opacity-100 translate-y-14 font-bold absolute text-center text-gray-900 dark:text-white transition-all duration-1000 p-8"
-              : "opacity-0 translate-y-14 font-bold absolute text-center text-gray-900 dark:text-white transition-all duration-1000 p-8"
+              ? "opacity-100 px-4 mt-8 font-bold text-center text-gray-900 dark:text-white transition-all duration-1000"
+              : "opacity-0 px-4 mt-8 font-bold text-center text-gray-900 dark:text-white transition-all duration-1000"
           }
         >
           The server scales down due to it's free tier. Usually it takes up to
