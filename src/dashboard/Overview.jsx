@@ -58,6 +58,7 @@ export default function Overview() {
           <h1 className="text-center text-2xl mt-3 lg:hidden text-gray-900 dark:text-white font-bold">
             Interviews overview
           </h1>
+
           <div className="bg-white dark:bg-gray-800 relative shadow-md rounded-lg overflow-hidden">
             {/* HEADER */}
             <div className="flex flex-row items-center justify-end lg:justify-between space-y-0 md:space-x-4 p-4">
