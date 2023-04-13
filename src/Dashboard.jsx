@@ -1,21 +1,72 @@
 import { Link, useOutlet } from "react-router-dom";
 import Intro from "./dashboard/Intro";
+import { useState } from "react";
 
 export default function Dashboard({ loggedInUser }) {
+  const [navCollapsed, setNavCollapsed] = useState(true);
   const outlet = useOutlet();
+
+  const handleNavCollapse = () => {
+    setNavCollapsed(!navCollapsed);
+  };
+
   return (
-    <div className="h-screen w-full flex flex-auto">
-      <aside className="fixed w-64 h-full" aria-label="Sidenav">
-        {/* LOGO */}
-        <div className="py-5 px-3 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-          <Link to={"/dashboard/"}>
-            <button type="button" className="flex place-content-center">
-              <img src="/logo192.png" className="mr-3 h-6 sm:h-9" alt="" />
-              <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-                AI Interviewer
-              </span>
-            </button>
+    <div className="h-screen w-full flex flex-auto bg-white dark:bg-gray-800">
+      <aside
+        className={
+          navCollapsed
+            ? "-translate-x-64 fixed w-64 lg:translate-x-0 h-full transition-all z-50"
+            : "fixed w-64 lg:translate-x-0 h-full transition-all z-50"
+        }
+      >
+        {/* LOGO & OPEN/CLOSE MENU*/}
+        <div className="flex justify-start flex-row py-5 px-3 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 relative">
+          <Link to={"/dashboard/"} className="flex place-content-center">
+            <img src="/logo192.png" className="mr-3 h-9" alt="" />
+            <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+              AI Interviewer
+            </span>
           </Link>
+
+          {/* OPEN/CLOSE MENU BUTTON */}
+          <button
+            className={
+              navCollapsed
+                ? "-right-14 absolute ml-auto items-center p-2 text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 transition-all"
+                : "right-3 absolute ml-auto items-center p-2 text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 transition-all"
+            }
+            onClick={handleNavCollapse}
+          >
+            <span className="sr-only">Open main menu</span>
+
+            {navCollapsed ? (
+              <svg
+                className="w-6 h-6"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+            ) : (
+              <svg
+                className="w-6 h-6"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+            )}
+          </button>
         </div>
 
         {/* Top Options */}
@@ -128,7 +179,9 @@ export default function Dashboard({ loggedInUser }) {
         </div>
       </aside>
 
-      <main className="ml-64 h-full w-full">{outlet || <Intro />}</main>
+      <main className="ml-0 lg:ml-64 h-screen w-screen overflow-y-auto overflow-x-hidden transition-all bg-white dark:bg-gray-900">
+        <div className="h-fit">{outlet || <Intro />}</div>
+      </main>
     </div>
   );
 }
