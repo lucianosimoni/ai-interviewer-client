@@ -1,4 +1,14 @@
+import { useEffect, useState } from "react";
+
 export default function LoadingSpinner({ removeSidebarSpace }) {
+  const [showWaitingMessage, setShowWaitingMessage] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowWaitingMessage(true);
+    }, 5000);
+  }, []);
+
   return (
     <div
       className={
@@ -7,7 +17,7 @@ export default function LoadingSpinner({ removeSidebarSpace }) {
           : "z-50 fixed bg-[#111827a1] w-full h-screen flex place-items-center justify-center"
       }
     >
-      <div role="status">
+      <div role="status" className="flex flex-col items-center">
         <svg
           aria-hidden="true"
           className="opacity-100 drop-shadow-md inline w-20 h-20 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
@@ -25,6 +35,16 @@ export default function LoadingSpinner({ removeSidebarSpace }) {
           />
         </svg>
         <span className="sr-only">Loading...</span>
+        <span
+          className={
+            showWaitingMessage
+              ? "opacity-100 translate-y-14 font-bold absolute text-center text-gray-900 dark:text-white transition-all duration-1000 p-8"
+              : "opacity-0 translate-y-14 font-bold absolute text-center text-gray-900 dark:text-white transition-all duration-1000 p-8"
+          }
+        >
+          The server scales down due to it's free tier. Usually it takes up to
+          30 seconds to scale up and do it's job. 🙂
+        </span>
       </div>
     </div>
   );
