@@ -1,10 +1,12 @@
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ErrorPopup from "./ErrorPopup";
 import LoadingSpinner from "./LoadingSpinner";
 import { Link, useNavigate } from "react-router-dom";
+import { LoggedInUserContext } from "./LoggedInUserContext";
 
 export default function SignUp() {
+  const { setLoggedInUser } = useContext(LoggedInUserContext);
   const [passwordsCorrect, setPasswordsCorrect] = useState(undefined);
   const [error, setError] = useState({ visible: false, message: "" });
   const [loading, setLoading] = useState(false);
@@ -44,6 +46,7 @@ export default function SignUp() {
           "loggedInUser",
           JSON.stringify(res.data.createdUser)
         );
+        setLoggedInUser(res.data.createdUser);
         navigateTo("/dashboard");
       })
       .catch((error) => {

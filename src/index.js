@@ -13,6 +13,7 @@ import Overview from "./dashboard/Overview";
 import Help from "./dashboard/Help";
 import Interview from "./interview/Interview";
 import MockUser from "./MockUser";
+import { LoggedInUserContext } from "./LoggedInUserContext";
 
 const loggedInUser = {
   id: 1,
@@ -65,8 +66,26 @@ const router = createBrowserRouter([
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
+const App = () => {
+  const [loggedInUser, setLoggedInUser] = React.useState(null);
+
+  React.useEffect(() => {
+    const loggedInUserLocal = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (loggedInUserLocal) {
+      setLoggedInUser(loggedInUserLocal);
+    }
+  }, []);
+
+  return (
+    <LoggedInUserContext.Provider value={{ loggedInUser, setLoggedInUser }}>
+      <RouterProvider router={router} />
+    </LoggedInUserContext.Provider>
+  );
+};
+
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <App />
   </React.StrictMode>
 );

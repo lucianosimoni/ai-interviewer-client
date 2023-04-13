@@ -2,12 +2,14 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import ErrorPopup from "./ErrorPopup";
 import LoadingSpinner from "./LoadingSpinner";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { LoggedInUserContext } from "./LoggedInUserContext";
 
 export default function Login() {
   const [error, setError] = useState({ visible: false, message: "" });
   const [loading, setLoading] = useState(false);
   const navigateTo = useNavigate();
+  const { setLoggedInUser } = useContext(LoggedInUserContext);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -30,7 +32,6 @@ export default function Login() {
         setLoading(false);
         if (res.status !== 200) {
           console.error(res);
-          localStorage.removeItem("loggedInUser");
           return setError({
             visible: true,
             message:
@@ -41,6 +42,7 @@ export default function Login() {
           "loggedInUser",
           JSON.stringify(res.data.loggedInUser)
         );
+        setLoggedInUser(res.data.loggedInUser);
         navigateTo("/dashboard");
       })
       .catch((error) => {

@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import { LoggedInUserContext } from "./LoggedInUserContext";
 
 export default function Home() {
   const [navCollapsed, SetNavCollapsed] = useState(true);
+  const { loggedInUser, setLoggedInUser } = useContext(LoggedInUserContext);
 
   const handleNavCollapse = (event) => {
     SetNavCollapsed(!navCollapsed);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("loggedInUser");
+    setLoggedInUser(null);
   };
 
   return (
@@ -27,35 +34,63 @@ export default function Home() {
 
             {/* RIGHT BUTTONS */}
             <div className="flex items-center lg:order-2">
-              {/* DASHBOARD */}
-              <Link to={"/dashboard/"} className="hidden md:flex">
-                <button
-                  type="button"
-                  className="text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 py-3 px-4 lg:px-5 lg:py-2.5 text-sm font-medium text-center dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
-                >
-                  Dashboard
-                </button>
-              </Link>
+              {/* DASHBOARD & LOGOUT BUTTONS */}
+              {loggedInUser && (
+                <>
+                  <Link to={"/dashboard/"} className="hidden md:flex">
+                    <button
+                      type="button"
+                      className="text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 py-3 px-4 lg:px-5 lg:py-2.5 text-sm font-medium text-center dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                    >
+                      Dashboard
+                    </button>
+                  </Link>
 
-              {/* LOGIN */}
-              <Link to={"/login"} className="flex">
-                <button
-                  type="button"
-                  className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-                >
-                  Log in
-                </button>
-              </Link>
+                  {/* LOG OUT */}
+                  <button
+                    type="button"
+                    className="flex items-center justify-center ml-2 p-[7px] text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 rounded-lg dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+                    onClick={handleLogout}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="28"
+                      width="28"
+                      viewBox="0 96 960 960"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M180 936q-24 0-42-18t-18-42V276q0-24 18-42t42-18h291v60H180v600h291v60H180Zm486-185-43-43 102-102H375v-60h348L621 444l43-43 176 176-174 174Z"
+                      />
+                    </svg>
+                  </button>
+                </>
+              )}
 
-              {/* SIGNUP */}
-              <Link to={"/signup"} className="hidden md:flex">
-                <button
-                  type="button"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                >
-                  Sign up
-                </button>
-              </Link>
+              {/* LOGIN AND SIGNUP BUTTONS */}
+              {!loggedInUser && (
+                <>
+                  {/* LOGIN */}
+                  <Link to={"/login"} className="flex">
+                    <button
+                      type="button"
+                      className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+                    >
+                      Log in
+                    </button>
+                  </Link>
+
+                  {/* SIGNUP */}
+                  <Link to={"/signup"} className="hidden md:flex">
+                    <button
+                      type="button"
+                      className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                    >
+                      Sign up
+                    </button>
+                  </Link>
+                </>
+              )}
 
               {/* MOBILE BUTTON */}
               <button
@@ -160,13 +195,13 @@ export default function Home() {
 
             {/* BUTTONS */}
             <div className="flex flex-row justify-center lg:justify-start">
-              {/* SIGNUP */}
-              <Link to={"/signup"}>
-                <button
-                  type="button"
+              {/* SIGNUP / DASHBOARD */}
+              {loggedInUser ? (
+                <Link
+                  to={"/dashboard"}
                   className="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
                 >
-                  Sign up
+                  Dashboard
                   <svg
                     className="w-5 h-5 ml-2 -mr-1"
                     fill="currentColor"
@@ -179,8 +214,29 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                </button>
-              </Link>
+                </Link>
+              ) : (
+                <Link to={"/signup"}>
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
+                  >
+                    Sign up
+                    <svg
+                      className="w-5 h-5 ml-2 -mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </Link>
+              )}
 
               {/* LEARN MORE */}
               <Link to={"/about"}>

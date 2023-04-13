@@ -1,7 +1,10 @@
 import axios from "axios";
+import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { LoggedInUserContext } from "./LoggedInUserContext";
 
 export default function MockUser() {
+  const { setLoggedInUser } = useContext(LoggedInUserContext);
   const navigateTo = useNavigate();
 
   const loginAsMockUser = () => {
@@ -26,6 +29,7 @@ export default function MockUser() {
           "loggedInUser",
           JSON.stringify(res.data.loggedInUser)
         );
+        setLoggedInUser(res.data.loggedInUser);
         navigateTo("/dashboard");
       })
       .catch((error) => {
