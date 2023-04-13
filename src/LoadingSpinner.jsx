@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export default function LoadingSpinner({ removeSidebarSpace }) {
-  const [showWaitingMessage, setShowWaitingMessage] = useState(true);
+  const [showWaitingMessage, setShowWaitingMessage] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
