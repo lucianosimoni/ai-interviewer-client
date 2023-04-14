@@ -1,65 +1,28 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { createSpeechlySpeechRecognition } from "@speechly/speech-recognition-polyfill";
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
 import axios from "axios";
 import LoadingSpinner from "../LoadingSpinner";
 import ErrorPopup from "../ErrorPopup";
 import { LoggedInUserContext } from "../LoggedInUserContext";
 
-const appId = "d7b96257-772b-4a2d-acb0-cbe9c7e3a453";
-const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
-SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
-
 export default function Interview() {
   const { loggedInUser } = useContext(LoggedInUserContext);
   const { interviewId } = useParams();
   const [bannerVisible, setBannerVisible] = useState(true);
-  const [userSpeechTurn, setUserSpeechTurn] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ visible: false, message: "" });
-
   const [messages, setMessages] = useState([]);
-
-  // const body = {
-  //   userId: loggedInUser.id,
-  //   maxRound: 2,
-  //   level: 2,
-  // };
-  // const url = window.location.href;
-  // const apiUrl = url.includes("ai-interviewer")
-  //   ? "https://ai-interviewer.onrender.com"
-  //   : "http://192.168.1.251:3000";
-  // const axiosConfig = {
-  //   headers: { Authorization: `Bearer ${loggedInUser.token}` },
-  // };
-
-  const {
-    transcript,
-    resetTranscript,
-    isMicrophoneAvailable,
-    listening,
-    browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
-  const startListening = () => {
-    if (!userSpeechTurn) {
-      return;
-    }
-    SpeechRecognition.startListening({ continuous: true });
-  };
 
   // Space key handler
   const handleSpaceDown = useCallback((event) => {
     if (event.key === " ") {
-      startListening();
       document.getElementById("record-button").focus();
+      console.log("Spacebar Down - TODO: Start Listening");
     }
   }, []);
   const handleSpaceUp = useCallback((event) => {
     if (event.key === " ") {
-      SpeechRecognition.stopListening();
+      console.log("Spacebar Up - TODO: Stop Listening");
     }
   }, []);
   useEffect(() => {
@@ -71,52 +34,15 @@ export default function Interview() {
     };
   }, [handleSpaceDown, handleSpaceUp]);
 
-  if (!browserSupportsSpeechRecognition) {
-    return (
-      <main className="flex flex-col justify-center items-center text-center gap-2 h-screen px-8 w-full text-2xl text-gray-900 dark:text-white bg-white dark:bg-gray-800">
-        <span>Your browser does not support Speech Recognition.</span>
-        <span>😓</span>
-        <Link
-          to={"/dashboard"}
-          className="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
-        >
-          Dashboard
-          <svg
-            className="w-5 h-5 ml-2 -mr-1"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </Link>
-      </main>
-    );
-  }
-
-  if (!isMicrophoneAvailable) {
-    setError({ visible: true, message: "Microphone has not been activated!" });
-  }
-
-  const stopListening = () => {
-    // SpeechRecognition.stopListening();
-    SpeechRecognition.abortListening();
-    const message = transcript;
-    resetTranscript();
-    console.log("🗣️ Message is: ", message);
-
-    if (message.trim() === "") {
-      console.log("⚠️ Empty message. Continuing");
-      return;
-    }
-
-    saveUserMessage(message);
+  const startListening = () => {
+    console.log("Started listening");
   };
 
+  const stopListening = () => {
+    console.log("Stopped listening");
+  };
+
+  // eslint-disable-next-line no-unused-vars
   const saveUserMessage = async (message) => {
     setLoading(true);
     console.log("🗣️ Saving user message in Database");
@@ -140,7 +66,7 @@ export default function Interview() {
       .post(`${apiUrl}/interview-message`, body, axiosConfig)
       .then((res) => {
         setLoading(false);
-        setUserSpeechTurn(false);
+        // setUserSpeechTurn(false); FIXME:
         console.log("🗣️ res from SaveUserMessage:", res);
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -153,7 +79,7 @@ export default function Interview() {
       .catch((error) => {
         console.error(error);
         setLoading(false);
-        setUserSpeechTurn(true);
+        // setUserSpeechTurn(true); FIXME:
         setError({
           visible: true,
           message: error.message
@@ -188,7 +114,7 @@ export default function Interview() {
       })
       .catch((error) => {
         setLoading(false);
-        setUserSpeechTurn(true);
+        // setUserSpeechTurn(true); FIXME:
         setError({ visible: true, message: `Error: ${error}` });
         console.error("Something happed, error: ", error);
       });
@@ -250,18 +176,17 @@ export default function Interview() {
       .post(`${apiUrl}/interview-message`, body, axiosConfig)
       .then((res) => {
         setLoading(false);
-        setUserSpeechTurn(true);
+        // setUserSpeechTurn(true); FIXME:
         setMessages((prevMessages) => [
           ...prevMessages,
           res.data.createdMessage,
         ]);
         readInterviewerMessage(res.data.createdMessage);
         console.log("- 📦 Message saved 🟢");
-        console.log("🙂 - transcript, ", transcript);
       })
       .catch((error) => {
         setLoading(false);
-        setUserSpeechTurn(true);
+        // setUserSpeechTurn(true); FIXME:
         console.log("- 📦 NOT SAVED 🔴");
         setError({ visible: true, message: `Error: ${error}` });
         console.error("Something happed, error: ", error);
@@ -357,21 +282,23 @@ export default function Interview() {
 
           {/* CONTROL SECTION - BOTTOM */}
           <section
-            className={
-              userSpeechTurn
-                ? "text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
-                : "opacity-20 text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
-            }
+            // className={ FIXME:
+            //   userSpeechTurn
+            //     ? "text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
+            //     : "opacity-20 text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
+            // }
+            className="text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
           >
             <div className="relative flex flex-col gap-2 justify-center place-items-center h-full w-full">
               {/* Microphone */}
               <div className="absolute top-[-50px]">
                 <svg
-                  className={
-                    listening && userSpeechTurn
-                      ? "h-20 text-red-300 scale-95 drop-shadow-none transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
-                      : "h-20 text-slate-300 drop-shadow-2xl transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
-                  }
+                  // className={ FIXME:
+                  //   listening && userSpeechTurn
+                  //     ? "h-20 text-red-300 scale-95 drop-shadow-none transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
+                  //     : "h-20 text-slate-300 drop-shadow-2xl transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
+                  // }
+                  className="h-20 text-red-300 scale-95 drop-shadow-none transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
                   fill="currentColor"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 352 512"
@@ -384,7 +311,7 @@ export default function Interview() {
               <div className="align-bottom">
                 <button
                   id="record-button"
-                  disabled={userSpeechTurn ? false : true}
+                  // disabled={userSpeechTurn ? false : true} FIXME:
                   onTouchStart={startListening}
                   onMouseDown={startListening}
                   onKeyDown={startListening}

@@ -2,18 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
-import Home from "./Home";
-import ErrorPage from "./ErrorPage";
-import SignUp from "./SignUp";
-import TermsAndConditions from "./TermsAndConditions";
-import Login from "./Login";
-import Dashboard from "./Dashboard";
-import NewInterview from "./dashboard/NewInterview";
-import Overview from "./dashboard/Overview";
-import Help from "./dashboard/Help";
-import Interview from "./interview/Interview";
-import MockUser from "./MockUser";
-import { LoggedInUserContext } from "./LoggedInUserContext";
+
+import Home from "./components/Home";
+import ErrorPage from "./components/ErrorPage";
+import SignUp from "./components/SignUp";
+import TermsAndConditions from "./components/TermsAndConditions";
+import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
+import NewInterview from "./components/dashboard/NewInterview";
+import Overview from "./components/dashboard/Overview";
+import Help from "./components/dashboard/Help";
+import Interview from "./components/interview/Interview";
+import MockUser from "./components/MockUser";
+import { LoggedInUserContext } from "./components/LoggedInUserContext";
 
 const router = createBrowserRouter([
   {
