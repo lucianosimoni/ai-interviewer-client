@@ -27,7 +27,7 @@ export default function SignUp() {
     const url = window.location.href;
     const apiUrl = url.includes("ai-interviewer")
       ? "https://ai-interviewer.onrender.com"
-      : "http://192.168.1.251:3000";
+      : "http://localhost:3000";
 
     axios
       .post(apiUrl + "/user/register", body)
