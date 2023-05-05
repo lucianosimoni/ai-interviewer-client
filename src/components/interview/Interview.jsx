@@ -1,23 +1,58 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { LoggedInUserContext } from "../LoggedInUserContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import LoadingSpinner from "../LoadingSpinner";
 import ErrorPopup from "../ErrorPopup";
 import OpenAi from "../../utils/OpenAI";
 
 import MicRecorder from "mic-recorder-to-mp3";
+import Database from "../../utils/Database";
 
 export default function Interview() {
   const { loggedInUser } = useContext(LoggedInUserContext);
-  // const { interviewId } = useParams();
+  const { interviewId } = useParams();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ visible: false, message: "" });
   const [bannerVisible, setBannerVisible] = useState(true);
+  const navigateTo = useNavigate();
+
   const [messages, setMessages] = useState([]);
+  const [isUserTurn, setIsUserTurn] = useState(false);
 
   const [recording, setRecording] = useState(false);
   const [recorder, setRecorder] = useState();
+
+  useEffect(() => {
+    if (!loggedInUser) {
+      return navigateTo("/");
+    }
+    checkInterview();
+  }, []);
+
+  const checkInterview = async () => {
+    // ⚙️ Check if this Interview belongs to this LoggedInUser
+    setLoading(true);
+    const interviewInfo = await Database.getInterviewById(
+      interviewId,
+      loggedInUser.token
+    );
+    if (!interviewInfo) {
+      console.log(
+        "No interview Info returned, User may have an issue with its token. Send them to the Home page."
+      );
+      return navigateTo("/dashboard");
+    }
+
+    // 👤 User doesn't own this Interview.
+    if (loggedInUser.id !== interviewInfo.userId) {
+      console.log("InterviewInfo: ", interviewInfo);
+      console.log("💥 Interview does not belong to you bruh.");
+      setLoading(false);
+      return navigateTo("/dashboard");
+    }
+    setLoading(false);
+  };
 
   const startRecording = () => {
     const newRecorder = new MicRecorder({
@@ -45,18 +80,36 @@ export default function Interview() {
         formData.append("audioFile", blob, "audio/mp3");
 
         const speechToText = await OpenAi.speechToText(formData, loggedInUser);
-        // speechToText.transcription
         console.log("🔰 transcription is: ", speechToText.transcription);
 
         // TODO: Save message to database
+        const savedMessage = await Database.saveMessage(
+          speechToText.transcription,
+          interviewId,
+          loggedInUser.token,
+          loggedInUser.Profile
+        );
+        if (!savedMessage) {
+          setLoading(false);
+          return setError({
+            visible: true,
+            message: "Error while Saving message. Try again please.",
+          });
+        }
+        console.log("✨✨✨ Message saved is: ", savedMessage);
+
         // TODO: Get response from Interviewer
+
         // TODO: Save response from Interviewer to database
 
         setLoading(false);
       })
       .catch((error) => {
-        alert("We could not retrieve your message. Try again please.");
         console.log(error);
+        setError({
+          visible: true,
+          message: "We could not retrieve your message. Try again please.",
+        });
         setLoading(false);
       });
   };
