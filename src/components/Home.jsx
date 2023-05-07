@@ -258,7 +258,7 @@ export default function Home() {
           {/* IMAGE RIGHT */}
           <div className="hidden items-center h-full lg:mt-0 lg:col-span-5 lg:flex">
             <img
-              src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/hero/phone-mockup.png"
+              src="https://firebasestorage.googleapis.com/v0/b/database-b2684.appspot.com/o/ai-interviewer-home-image-second.png?alt=media&token=338df380-c9bc-4931-a3d7-788c497330a2"
               alt="mockup"
             />
           </div>
