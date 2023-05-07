@@ -7,6 +7,7 @@ import OpenAi from "../../utils/OpenAI";
 
 import MicRecorder from "mic-recorder-to-mp3";
 import Database from "../../utils/Database";
+import Browser from "../../utils/Browser";
 
 export default function Interview() {
   const { loggedInUser } = useContext(LoggedInUserContext);
@@ -14,6 +15,11 @@ export default function Interview() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ visible: false, message: "" });
+  const [errorInterviewer, setErrorInterviewer] = useState({
+    state: false,
+    messages: "",
+  });
+
   const [bannerVisible, setBannerVisible] = useState(true);
   const navigateTo = useNavigate();
 
@@ -32,6 +38,7 @@ export default function Interview() {
 
   const checkInterview = async () => {
     // ⚙️ Check if this Interview belongs to this LoggedInUser
+    // 📑 Fetches the Messages if any from the Server and Store in local state
     setLoading(true);
     const interviewInfo = await Database.getInterviewById(
       interviewId,
@@ -51,6 +58,21 @@ export default function Interview() {
       setLoading(false);
       return navigateTo("/dashboard");
     }
+
+    // TODO: Fetch Messages from this Interview from the DB
+    const interviewMessages = await Database.getInterviewMessages(
+      interviewId,
+      loggedInUser.id,
+      loggedInUser.token
+    );
+    console.log(
+      "💥💥💥📑 Interview Messages in the Frontend are:",
+      interviewMessages
+    );
+
+    // TODO: Save formatted Res to the messages local state
+    setMessages(interviewMessages);
+
     setLoading(false);
   };
 
@@ -76,13 +98,12 @@ export default function Interview() {
         setRecording(false);
         setLoading(true);
 
+        // 🧑 Get Transcription of User audio
         const formData = new FormData();
         formData.append("audioFile", blob, "audio/mp3");
-
         const speechToText = await OpenAi.speechToText(formData, loggedInUser);
-        console.log("🔰 transcription is: ", speechToText.transcription);
 
-        // TODO: Save message to database
+        // 🧑 Save Transcription of User audio
         const savedMessage = await Database.saveMessage(
           speechToText.transcription,
           interviewId,
@@ -96,12 +117,56 @@ export default function Interview() {
             message: "Error while Saving message. Try again please.",
           });
         }
-        console.log("✨✨✨ Message saved is: ", savedMessage);
 
-        // TODO: Get response from Interviewer
+        // 🧑 Store Transcription of User audio into local state
+        const localMessages = [
+          ...messages,
+          { author: "User", message: speechToText.transcription },
+        ];
+        setMessages(localMessages);
 
-        // TODO: Save response from Interviewer to database
+        // 🤖 Get Interviewer Response
+        const interviewerResponse = await OpenAi.getResponse(
+          localMessages,
+          loggedInUser
+        );
+        if (!interviewerResponse) {
+          setLoading(false);
+          setErrorInterviewer({ state: true, messages: localMessages });
+          return setError({
+            visible: true,
+            message:
+              "Error while Receiving Interviewer response. Try again please.",
+          });
+        }
 
+        // 🤖 Save Interviewer Response
+        const savedInterviewerMessage = await Database.saveMessage(
+          interviewerResponse.result,
+          interviewId,
+          loggedInUser.token,
+          { firstName: "Interviewer", userId: loggedInUser.id }
+        );
+        if (!savedInterviewerMessage) {
+          setLoading(false);
+          setErrorInterviewer({ state: true, messages: localMessages });
+          return setError({
+            visible: true,
+            message:
+              "Error while Saving Interviewer message. Try again please.",
+          });
+        }
+
+        // 🤖 Store Interviewer Response into local state
+        setMessages([
+          ...localMessages,
+          { author: "Interviewer", message: interviewerResponse.result },
+        ]);
+
+        // 🤖 Read Interviewer Response
+        Browser.readMessage(interviewerResponse.result);
+
+        setErrorInterviewer({ state: false, messages: null });
         setLoading(false);
       })
       .catch((error) => {
@@ -112,6 +177,52 @@ export default function Interview() {
         });
         setLoading(false);
       });
+  };
+
+  const resendResponseRequest = async () => {
+    setLoading(true);
+    // 🤖 Get Interviewer Response
+    const interviewerResponse = await OpenAi.getResponse(
+      errorInterviewer.messages,
+      loggedInUser
+    );
+    if (!interviewerResponse) {
+      setLoading(false);
+      setErrorInterviewer({ state: true, messages: errorInterviewer.messages });
+      return setError({
+        visible: true,
+        message:
+          "Error while Receiving Interviewer response. Try again please.",
+      });
+    }
+
+    // 🤖 Save Interviewer Response
+    const savedInterviewerMessage = await Database.saveMessage(
+      interviewerResponse.result,
+      interviewId,
+      loggedInUser.token,
+      { firstName: "Interviewer", userId: loggedInUser.id }
+    );
+    if (!savedInterviewerMessage) {
+      setLoading(false);
+      setErrorInterviewer({ state: true, messages: errorInterviewer.messages });
+      return setError({
+        visible: true,
+        message: "Error while Saving Interviewer message. Try again please.",
+      });
+    }
+
+    // 🤖 Store Interviewer Response into local state
+    setMessages([
+      ...messages,
+      { author: "Interviewer", message: interviewerResponse.result },
+    ]);
+
+    // 🤖 Read Interviewer Response
+    Browser.readMessage(interviewerResponse.result);
+
+    setErrorInterviewer({ state: false, messages: null });
+    setLoading(false);
   };
 
   return (
@@ -194,7 +305,7 @@ export default function Interview() {
             <span className="sr-only">Close modal</span>
           </Link>
 
-          {/* MESSAGES SECTION */}
+          {/* 📃 MESSAGES SECTION */}
           <section className="text-white h-3/5 overflow-y-auto pb-8">
             <div className="flex flex-col gap-2">
               {messages.map((message, index) => {
@@ -225,7 +336,7 @@ export default function Interview() {
             className="text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end relative"
           >
             <div className="relative flex flex-col gap-2 justify-center place-items-center h-full w-full">
-              {/* Microphone */}
+              {/* 🎙️ Microphone */}
               <div className="absolute top-[-50px]">
                 <svg
                   className={
@@ -242,21 +353,32 @@ export default function Interview() {
                 </svg>
               </div>
 
-              {/* Space bar */}
+              {/* 🔽 Space bar */}
               <div className="align-bottom">
                 <button
                   id="record-button"
-                  // disabled={userSpeechTurn ? false : true} FIXME:
+                  disabled={errorInterviewer.state}
                   onTouchStart={startRecording}
                   onTouchEnd={stopRecording}
                   onMouseDown={startRecording}
                   onMouseUp={stopRecording}
                   autoFocus={true}
-                  className="outline-none transition duration-300 ease-in active:duration-75 hover:translate-y-1 active:translate-y-2 text-xl text-center w-96 h-20 bg-gradient-to-t from-slate-800 to-slate-700 border-slate-600 drop-shadow-xl shadow-2xl hover:shadow-md active:shadow-sm hover:drop-shadow-lg active:drop-shadow-sm border-2 border-solid rounded-xl "
+                  className="outline-none transition-all duration-300 ease-in active:duration-75 hover:translate-y-1 active:translate-y-2 text-xl text-center w-96 h-20 bg-gradient-to-t from-slate-800 to-slate-700 border-slate-600 drop-shadow-xl shadow-2xl hover:shadow-md active:shadow-sm hover:drop-shadow-lg active:drop-shadow-sm disabled:opacity-30 disabled:hover:shadow-2xl disabled:hover:translate-y-0 disabled:hover:drop-shadow-xl border-2 border-solid rounded-xl "
                 >
                   <span className="text-slate-200 drop-shadow-[0_0_15px_#000000]">
                     Record
                   </span>
+                </button>
+
+                <button
+                  className={
+                    errorInterviewer.state
+                      ? "ml-4 outline-none transition-all duration-300 ease-in active:duration-75 hover:translate-y-1 active:translate-y-2 text-xl text-center w-52 h-16 bg-gradient-to-t from-red-800 to-red-500 border-red-300 drop-shadow-xl shadow-2xl hover:shadow-md active:shadow-sm hover:drop-shadow-lg active:drop-shadow-sm disabled:opacity-30 disabled:hover:shadow-2xl disabled:hover:translate-y-0 disabled:hover:drop-shadow-xl border-2 border-solid rounded-xl "
+                      : "hidden"
+                  }
+                  onClick={resendResponseRequest}
+                >
+                  Get response again
                 </button>
               </div>
             </div>

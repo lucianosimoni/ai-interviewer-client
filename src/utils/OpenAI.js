@@ -6,23 +6,25 @@ export default class OpenAi {
     ? "https://ai-interviewer.onrender.com"
     : "http://localhost:3000";
 
-  static async getResponse(previousMessages, newMessage, loggedInUser) {
-    console.log(newMessage);
-    const fullMessage = this.buildFullMessage(newMessage, loggedInUser);
+  static async getResponse(messages, loggedInUser) {
+    console.log("🧠 Getting the Response based on the Messages state...");
+    const promptMessage = this.buildPromptMessage(messages);
     const config = {
       headers: { Authorization: `Bearer ${loggedInUser.token}` },
     };
-    axios
-      .post(`${this.apiUrl}/openai`, { message: fullMessage }, config)
-      .then((res) => {
-        return res;
+
+    return await axios
+      .post(`${this.apiUrl}/openai`, { message: promptMessage }, config)
+      .then((response) => {
+        console.log("Response from Posting in the client is: ", response.data);
+        return response.data;
       })
       .catch((error) => {
         console.error(
-          "Something happed while getting the response, error: ",
+          "Something happed while getting the response (Interviewer Response), error: ",
           error
         );
-        return error;
+        return null;
       });
   }
 
@@ -50,18 +52,18 @@ export default class OpenAi {
       });
   }
 
-  static buildFullMessage(newMessage, loggedInUser) {
-    // ADD lastMessage
-    const fullMessage = `${newMessage.map((m) => {
-      if (m.author !== loggedInUser.firstName) {
-        // AI
-        return String(m.message + "\n");
-      } else {
-        //USER
-        return String(m.message + "->");
+  static buildPromptMessage(messages) {
+    // messages: [{author, message}, {}...]
+    let promptMessage = "";
+    messages.map((message) => {
+      switch (message.author) {
+        case "Interviewer":
+          return (promptMessage += String(message.message + "\n"));
+        default:
+          return (promptMessage += String(message.message + "->"));
       }
-    })}${newMessage.message}->`;
-
-    return fullMessage;
+    });
+    console.log(`⚙️ PromptMessage was built. Final result: "${promptMessage}"`);
+    return promptMessage;
   }
 }

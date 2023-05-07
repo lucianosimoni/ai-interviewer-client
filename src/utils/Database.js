@@ -6,12 +6,7 @@ export default class Database {
     ? "https://ai-interviewer.onrender.com"
     : "http://localhost:3000";
 
-  static async saveMessage(
-    message,
-    interviewId,
-    userToken,
-    profile = { firstName: "Interviewer", userId: null }
-  ) {
+  static async saveMessage(message, interviewId, userToken, profile) {
     // 📑 Saves both User and AI messages. Leave profile empty for AI
     const config = {
       headers: { Authorization: `Bearer ${userToken}` },
@@ -23,7 +18,7 @@ export default class Database {
       message: message,
       author: profile.firstName,
     };
-
+    console.log("Trying to save message body: ", body);
     return await axios
       .post(`${this.apiUrl}/interview-message`, body, config)
       .then((res) => {
@@ -36,7 +31,6 @@ export default class Database {
   }
 
   static async getInterviewById(interviewId, userToken) {
-    console.log("Getting interview by id");
     const config = {
       headers: { Authorization: `Bearer ${userToken}` },
     };
@@ -45,6 +39,29 @@ export default class Database {
       .get(`${this.apiUrl}/interview/${interviewId}`, config)
       .then((res) => {
         return res.data.interview;
+      })
+      .catch((error) => {
+        console.error(error);
+        return null;
+      });
+  }
+
+  static async getInterviewMessages(interviewId, userId, userToken) {
+    const config = {
+      headers: { Authorization: `Bearer ${userToken}` },
+    };
+
+    return await axios
+      .get(
+        `${this.apiUrl}/interview-message?interviewId=${interviewId}&userId=${userId}`,
+        config
+      )
+      .then((res) => {
+        console.log(
+          "🗣️🗣️🗣️ Response from DB while fetching Interview Messages res.data is: ",
+          res.data
+        );
+        return res.data.allMessages;
       })
       .catch((error) => {
         console.error(error);
