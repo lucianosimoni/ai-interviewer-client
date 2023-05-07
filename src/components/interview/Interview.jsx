@@ -24,7 +24,6 @@ export default function Interview() {
   const navigateTo = useNavigate();
 
   const [messages, setMessages] = useState([]);
-  const [isUserTurn, setIsUserTurn] = useState(false);
 
   const [recording, setRecording] = useState(false);
   const [recorder, setRecorder] = useState();
@@ -34,6 +33,7 @@ export default function Interview() {
       return navigateTo("/");
     }
     checkInterview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkInterview = async () => {
@@ -51,7 +51,7 @@ export default function Interview() {
       return navigateTo("/dashboard");
     }
 
-    // 👤 User doesn't own this Interview.
+    // 🧑⛔ User doesn't own this Interview.
     if (loggedInUser.id !== interviewInfo.userId) {
       console.log("InterviewInfo: ", interviewInfo);
       console.log("💥 Interview does not belong to you bruh.");
@@ -59,20 +59,13 @@ export default function Interview() {
       return navigateTo("/dashboard");
     }
 
-    // TODO: Fetch Messages from this Interview from the DB
     const interviewMessages = await Database.getInterviewMessages(
       interviewId,
       loggedInUser.id,
       loggedInUser.token
     );
-    console.log(
-      "💥💥💥📑 Interview Messages in the Frontend are:",
-      interviewMessages
-    );
 
-    // TODO: Save formatted Res to the messages local state
     setMessages(interviewMessages);
-
     setLoading(false);
   };
 
@@ -284,7 +277,7 @@ export default function Interview() {
 
       <main className="h-screen w-full bg-white dark:bg-gray-800">
         <div className="h-full px-14 py-4 text-center overflow-clip">
-          {/* X CLOSE */}
+          {/* ⛔ X CLOSE */}
           <Link
             to={"/dashboard"}
             onClick={() => setError({ visible: false, message: "" })}
@@ -306,43 +299,63 @@ export default function Interview() {
           </Link>
 
           {/* 📃 MESSAGES SECTION */}
-          <section className="text-white h-3/5 overflow-y-auto pb-8">
-            <div className="flex flex-col gap-2">
+          <section className="text-white h-4/5 overflow-y-auto pb-8">
+            <div className="flex flex-col gap-2 h-full">
+              {!messages.length && (
+                <div className="text-2xl flex flex-col justify-center items-center h-full ">
+                  <span>Start by introducing yourself.</span>
+                  <span>A simple "Hello, my name is..." does the trick 👍</span>
+                  <span className="animate-pulse">
+                    Press and hold the <b>Record</b> button to start.
+                  </span>
+                </div>
+              )}
+
               {messages.map((message, index) => {
-                return (
-                  <div
-                    key={index}
-                    className="flex flex-col text-left border border-slate-500 p-9 rounded-2xl"
-                  >
-                    <span className="text-blue-400 text-2xl mr-4">
-                      {message.author}
-                    </span>
-                    <span className="text-white text-2xl">
-                      {message.message}
-                    </span>
-                  </div>
-                );
+                switch (message.author) {
+                  case "Interviewer":
+                    return (
+                      <div
+                        key={index}
+                        className="flex flex-col text-left border bg-gradient-to-b from-amber-900 border-slate-500 p-9 rounded-2xl"
+                      >
+                        <span className="text-orange-300 text-2xl mr-4">
+                          {message.author}
+                        </span>
+                        <span className="text-white text-2xl">
+                          {message.message}
+                        </span>
+                      </div>
+                    );
+                  default:
+                    return (
+                      <div
+                        key={index}
+                        className="flex flex-col text-left border bg-gradient-to-b from-slate-700 border-slate-500 p-9 rounded-2xl"
+                      >
+                        <span className="text-blue-400 text-2xl mr-4">
+                          {message.author}
+                        </span>
+                        <span className="text-white text-2xl">
+                          {message.message}
+                        </span>
+                      </div>
+                    );
+                }
               })}
             </div>
           </section>
 
-          {/* CONTROL SECTION - BOTTOM */}
-          <section
-            // className={ FIXME:
-            //   userSpeechTurn
-            //     ? "text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
-            //     : "opacity-20 text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end"
-            // }
-            className="text-white h-1/5 shadow-2xl from-slate-700 to-slate-600 bg-gradient-to-tr rounded-3xl place-self-end relative"
-          >
+          {/* ⚙️ CONTROL SECTION */}
+          <section className="text-white h-1/5 shadow-2xl bg-gradient-to-tr from-slate-700 to-slate-600 rounded-3xl relative">
             <div className="relative flex flex-col gap-2 justify-center place-items-center h-full w-full">
               {/* 🎙️ Microphone */}
               <div className="absolute top-[-50px]">
                 <svg
                   className={
                     recording
-                      ? "h-20 text-red-300 scale-95 drop-shadow-none transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
-                      : "h-20 text-slate-300 drop-shadow-2xl transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
+                      ? "h-20 text-red-300 scale-95 drop-shadow-none transition duration-100 ease-linear hover:scale-110 hover:drop-shadow-2xl"
+                      : "h-20 text-slate-300 drop-shadow-2xl transition duration-100 ease-linear hover:scale-110 hover:drop-shadow-2xl"
                   }
                   // className="h-20 text-red-300 scale-95 drop-shadow-none transition duration-200 ease-linear hover:scale-110 hover:drop-shadow-2xl"
                   fill="currentColor"

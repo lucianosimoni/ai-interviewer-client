@@ -7,7 +7,7 @@ export default class Database {
     : "http://localhost:3000";
 
   static async saveMessage(message, interviewId, userToken, profile) {
-    // 📑 Saves both User and AI messages. Leave profile empty for AI
+    // 📑 Saves both User and AI messages. Specify the profile to have the "Interviewer" as firstName when wanted.
     const config = {
       headers: { Authorization: `Bearer ${userToken}` },
     };
@@ -18,7 +18,7 @@ export default class Database {
       message: message,
       author: profile.firstName,
     };
-    console.log("Trying to save message body: ", body);
+
     return await axios
       .post(`${this.apiUrl}/interview-message`, body, config)
       .then((res) => {
