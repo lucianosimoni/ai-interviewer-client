@@ -57,11 +57,31 @@ export default class Database {
         config
       )
       .then((res) => {
-        console.log(
-          "🗣️🗣️🗣️ Response from DB while fetching Interview Messages res.data is: ",
-          res.data
-        );
         return res.data.allMessages;
+      })
+      .catch((error) => {
+        console.error(error);
+        return null;
+      });
+  }
+
+  static async updateInterviewCurrentRound(
+    interviewId,
+    userToken,
+    newCurrentRound
+  ) {
+    const config = {
+      headers: { Authorization: `Bearer ${userToken}` },
+    };
+
+    return await axios
+      .patch(
+        `${this.apiUrl}/interview/${interviewId}`,
+        { newCurrentRound: newCurrentRound },
+        config
+      )
+      .then((res) => {
+        return res.data.updatedInterview;
       })
       .catch((error) => {
         console.error(error);

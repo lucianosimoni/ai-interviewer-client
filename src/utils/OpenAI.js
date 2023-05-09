@@ -7,7 +7,6 @@ export default class OpenAi {
     : "http://localhost:3000";
 
   static async getResponse(messages, loggedInUser) {
-    console.log("🧠 Getting the Response based on the Messages state...");
     const promptMessage = this.buildPromptMessage(messages);
     const config = {
       headers: { Authorization: `Bearer ${loggedInUser.token}` },
@@ -16,7 +15,6 @@ export default class OpenAi {
     return await axios
       .post(`${this.apiUrl}/openai`, { message: promptMessage }, config)
       .then((response) => {
-        console.log("Response from Posting in the client is: ", response.data);
         return response.data;
       })
       .catch((error) => {
@@ -29,7 +27,6 @@ export default class OpenAi {
   }
 
   static async speechToText(formData, loggedInUser) {
-    console.log("📚 Speech to text API");
     const config = {
       headers: {
         Authorization: `Bearer ${loggedInUser.token}`,
@@ -40,7 +37,6 @@ export default class OpenAi {
     return await axios
       .post(`${this.apiUrl}/openai/speech-to-text`, formData, config)
       .then((res) => {
-        console.log("📚 Response from OpenAI Util data is: ", res.data);
         return res.data;
       })
       .catch((error) => {
@@ -63,7 +59,6 @@ export default class OpenAi {
           return (promptMessage += String(message.message + "->"));
       }
     });
-    console.log(`⚙️ PromptMessage was built. Final result: "${promptMessage}"`);
     return promptMessage;
   }
 }
