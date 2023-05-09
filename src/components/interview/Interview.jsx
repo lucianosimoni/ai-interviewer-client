@@ -119,25 +119,9 @@ export default function Interview() {
         const speechToText = await OpenAi.speechToText(formData, loggedInUser);
 
         // 📑 Check if it's the Round maxRound-1 (ex 4/5)
-        console.log("Interview data is:", interviewData);
-        console.log(
-          "Current round is same as maxRound-1?: ",
-          interviewData.currentRound === interviewData.maxRound - 1
-        );
         if (interviewData.currentRound === interviewData.maxRound - 1) {
           // 🏁 Add <end-interview> to the end of Transcription
-          console.log(
-            "Yes they are the same, so we add the <end-interview> to the end of the trans."
-          );
-          console.log(
-            "Transcription from speechToText WAS:",
-            speechToText.transcription
-          );
           speechToText.transcription += "<end-interview>";
-          console.log(
-            "Transcription from speechToText is now:",
-            speechToText.transcription
-          );
           setInterviewOver(true);
         }
 
@@ -155,7 +139,6 @@ export default function Interview() {
             message: "Error while Saving message. Try again please.",
           });
         }
-        console.log("Saved message is: ", savedMessage);
 
         // 🧑 Store Transcription of User audio into local state
         const localMessages = [
