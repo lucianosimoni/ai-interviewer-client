@@ -1,9 +1,9 @@
-import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ErrorPopup from "../ErrorPopup";
 import LoadingSpinner from "../LoadingSpinner";
 import { LoggedInUserContext } from "../LoggedInUserContext";
+import Database from "../../utils/Database";
 
 export default function Overview() {
   const { loggedInUser } = useContext(LoggedInUserContext);
@@ -17,29 +17,22 @@ export default function Overview() {
       return;
     }
 
-    const url = window.location.href;
-    const apiUrl = url.includes("ai-interviewer")
-      ? "https://ai-interviewer.onrender.com"
-      : "http://localhost:3000";
-    const axiosConfig = {
-      headers: { Authorization: `Bearer ${loggedInUser.token}` },
-    };
-
-    // TODO: Use the Database.js utils
-    axios
-      .get(`${apiUrl}/interview/user/${loggedInUser.id}`, axiosConfig)
-      .then((res) => {
-        setLoading(false);
-        sortInterviews(res.data.userInterviews);
-      })
-      .catch((error) => {
-        console.error(error);
+    async function fetchUserInterviews() {
+      const interviews = await Database.getInterviewsByUserId(
+        loggedInUser.id,
+        loggedInUser.token
+      );
+      if (!interviews) {
         setLoading(false);
         setError({
           visible: true,
           message: "An error Occured. Please Reflesh",
         });
-      });
+      }
+      setLoading(false);
+      sortInterviews(interviews);
+    }
+    fetchUserInterviews();
   }, [loggedInUser]);
 
   const sortInterviews = (interviews) => {

@@ -65,6 +65,22 @@ export default class Database {
       });
   }
 
+  static async getInterviewsByUserId(userId, userToken) {
+    const config = {
+      headers: { Authorization: `Bearer ${userToken}` },
+    };
+
+    return await axios
+      .get(`${this.apiUrl}/interview/user/${userId}`, config)
+      .then((res) => {
+        return res.data.userInterviews;
+      })
+      .catch((error) => {
+        console.error(error);
+        return null;
+      });
+  }
+
   static async updateInterviewCurrentRound(
     interviewId,
     userToken,
