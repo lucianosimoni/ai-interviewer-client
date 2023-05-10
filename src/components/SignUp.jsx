@@ -29,6 +29,7 @@ export default function SignUp() {
       ? "https://ai-interviewer.onrender.com"
       : "http://localhost:3000";
 
+    // TODO: Use the Authentication.js
     axios
       .post(apiUrl + "/user/register", body)
       .then((res) => {
