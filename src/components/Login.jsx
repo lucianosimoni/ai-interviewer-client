@@ -1,9 +1,9 @@
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import ErrorPopup from "./ErrorPopup";
 import LoadingSpinner from "./LoadingSpinner";
 import { useContext, useState } from "react";
 import { LoggedInUserContext } from "./LoggedInUserContext";
+import Authentication from "../utils/Authentication";
 
 export default function Login() {
   const [error, setError] = useState({ visible: false, message: "" });
@@ -11,7 +11,7 @@ export default function Login() {
   const navigateTo = useNavigate();
   const { setLoggedInUser } = useContext(LoggedInUserContext);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const [email, password] = event.target;
 
@@ -21,39 +21,17 @@ export default function Login() {
       password: password.value,
     };
 
-    const url = window.location.href;
-    const apiUrl = url.includes("ai-interviewer")
-      ? "https://ai-interviewer.onrender.com"
-      : "http://localhost:3000";
-
-    // TODO: Use the Authentication.js
-    axios
-      .post(apiUrl + "/user/login", body)
-      .then((res) => {
-        setLoading(false);
-        if (res.status !== 200) {
-          console.error(res);
-          return setError({
-            visible: true,
-            message:
-              "An error occured while trying to Login. Try again or get in touch with Luciano.",
-          });
-        }
-        localStorage.setItem(
-          "loggedInUser",
-          JSON.stringify(res.data.loggedInUser)
-        );
-        setLoggedInUser(res.data.loggedInUser);
-        navigateTo("/dashboard");
-      })
-      .catch((error) => {
-        setLoading(false);
-        const errorRes = error.response.data.error;
-        return setError({
-          visible: true,
-          message: errorRes.message ? errorRes.message : error,
-        });
+    const loggedInUser = await Authentication.login(body);
+    if (loggedInUser.hasOwnProperty("error")) {
+      setLoading(false);
+      return setError({
+        visible: true,
+        message: loggedInUser.error.message,
       });
+    }
+    setLoading(false);
+    setLoggedInUser(loggedInUser);
+    navigateTo("/dashboard");
   };
 
   return (

@@ -1,9 +1,9 @@
-import axios from "axios";
 import { useContext, useState } from "react";
 import ErrorPopup from "./ErrorPopup";
 import LoadingSpinner from "./LoadingSpinner";
 import { Link, useNavigate } from "react-router-dom";
 import { LoggedInUserContext } from "./LoggedInUserContext";
+import Authentication from "../utils/Authentication";
 
 export default function SignUp() {
   const { setLoggedInUser } = useContext(LoggedInUserContext);
@@ -12,7 +12,7 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
   const navigateTo = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const [firstName, lastName, email, password] = event.target;
 
@@ -24,40 +24,17 @@ export default function SignUp() {
       password: password.value,
     };
 
-    const url = window.location.href;
-    const apiUrl = url.includes("ai-interviewer")
-      ? "https://ai-interviewer.onrender.com"
-      : "http://localhost:3000";
-
-    // TODO: Use the Authentication.js
-    axios
-      .post(apiUrl + "/user/register", body)
-      .then((res) => {
-        setLoading(false);
-        if (res.status !== 201) {
-          console.error(res);
-          localStorage.removeItem("loggedInUser");
-          return setError({
-            visible: true,
-            message:
-              "An error occured while trying to Register. Try again or get in touch with Luciano.",
-          });
-        }
-        localStorage.setItem(
-          "loggedInUser",
-          JSON.stringify(res.data.createdUser)
-        );
-        setLoggedInUser(res.data.createdUser);
-        navigateTo("/dashboard");
-      })
-      .catch((error) => {
-        setLoading(false);
-        const errorRes = error.response.data.error;
-        return setError({
-          visible: true,
-          message: errorRes.message ? errorRes.message : error,
-        });
+    const createdUser = await Authentication.register(body);
+    if (createdUser.hasOwnProperty("error")) {
+      setLoading(false);
+      return setError({
+        visible: true,
+        message: createdUser.error.message,
       });
+    }
+    setLoading(false);
+    setLoggedInUser(createdUser);
+    navigateTo("/dashboard");
   };
 
   const checkPasswords = () => {
