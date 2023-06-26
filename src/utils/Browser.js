@@ -9,4 +9,12 @@ export default class Browser {
     msg.rate = 1.5;
     window.speechSynthesis.speak(msg);
   }
+
+  static getUrl() {
+    console.log("HELLO THERE, GETTING URL");
+    const url = window.location.href;
+    return url.includes("ai-interviewer")
+      ? "http://18.134.73.217:3000"
+      : "http://localhost:3000";
+  }
 }

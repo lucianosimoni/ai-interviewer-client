@@ -1,10 +1,8 @@
 import axios from "axios";
+import Browser from "./Browser";
 
 export default class OpenAi {
-  static url = window.location.href;
-  static apiUrl = this.url.includes("ai-interviewer")
-    ? "https://ai-interviewer.onrender.com"
-    : "http://localhost:3000";
+  static apiUrl = Browser.getUrl();
 
   static async getResponse(messages, loggedInUser) {
     const promptMessage = this.buildPromptMessage(messages);

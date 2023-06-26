@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ErrorPopup from "../ErrorPopup";
 import LoadingSpinner from "../LoadingSpinner";
 import { LoggedInUserContext } from "../LoggedInUserContext";
+import Browser from "../../utils/Browser";
 
 export default function NewInterview() {
   const { loggedInUser } = useContext(LoggedInUserContext);
@@ -21,10 +22,7 @@ export default function NewInterview() {
       maxRound: Number(maxRound.value),
       level: level.value,
     };
-    const url = window.location.href;
-    const apiUrl = url.includes("ai-interviewer")
-      ? "https://ai-interviewer.onrender.com"
-      : "http://localhost:3000";
+    const apiUrl = Browser.getUrl();
     const axiosConfig = {
       headers: { Authorization: `Bearer ${loggedInUser.token}` },
     };
