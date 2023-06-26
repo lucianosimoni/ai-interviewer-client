@@ -14,6 +14,9 @@ import Overview from "./components/dashboard/Overview";
 import Help from "./components/dashboard/Help";
 import Interview from "./components/interview/Interview";
 import MockUser from "./components/MockUser";
+import About from "./components/About";
+import Team from "./components/Team";
+import Contact from "./components/Contact";
 import { LoggedInUserContext } from "./components/LoggedInUserContext";
 
 const router = createBrowserRouter([
@@ -49,6 +52,9 @@ const router = createBrowserRouter([
       },
     ],
   },
+  { path: "/about", element: <About /> },
+  { path: "/team", element: <Team /> },
+  { path: "/contact", element: <Contact /> },
   {
     path: "/terms-and-conditions",
     element: <TermsAndConditions />,
