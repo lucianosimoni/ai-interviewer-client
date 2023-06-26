@@ -14,7 +14,7 @@ export default class Browser {
     console.log("HELLO THERE, GETTING URL");
     const url = window.location.href;
     return url.includes("ai-interviewer")
-      ? "http://18.134.73.217:3000"
+      ? "https://18.134.73.217:3000"
       : "http://localhost:3000";
   }
 }
