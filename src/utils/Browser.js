@@ -11,10 +11,9 @@ export default class Browser {
   }
 
   static getUrl() {
-    console.log("HELLO THERE, GETTING URL");
     const url = window.location.href;
     return url.includes("ai-interviewer")
-      ? "https://18.134.73.217:3000"
+      ? "https://ai-interviewer-server.onrender.com"
       : "http://localhost:3000";
   }
 }
