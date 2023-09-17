@@ -205,10 +205,12 @@ export default function Contact() {
               <br />
               website:
               <a
-                href="lucianosimoni.dev"
+                href="https://lucianosimoni.dev"
+                target="_blank"
                 className="font-bold before:content-['_']"
+                rel="noreferrer"
               >
-                LucianoSimoni.dev
+                www.lucianosimoni.dev
               </a>
             </p>
 
