@@ -170,7 +170,7 @@ export default function SignUp() {
                   </div>
 
                   {/* TERMS AND CONDITIONS */}
-                  <div className="flex items-start">
+                  {/* <div className="flex items-start">
                     <div className="flex items-center h-5">
                       <input
                         id="terms"
@@ -194,7 +194,7 @@ export default function SignUp() {
                         </Link>
                       </label>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* CREATE ACCOUNT BUTTON */}
                   <button
